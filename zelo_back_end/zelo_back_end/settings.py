@@ -25,7 +25,15 @@ SECRET_KEY = 'mbb-gu93448=k8ug8&r*070krzdtfj18*ksl7*bt=9yt_06v$%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.0.100', '192.168.0.104', '192.168.0.103', '172.20.10.4', '172.20.10.9', 'localhost']
+ALLOWED_HOSTS = [
+                '192.168.0.102',
+                '192.168.0.100',
+                '192.168.0.104',
+                '192.168.0.103',
+                '172.20.10.4',
+                '172.20.10.9',
+                '127.0.0.1'
+                'localhost']
 CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOW_METHODS = (
@@ -51,6 +59,7 @@ CORS_ALLOW_HEADERS = (
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -92,7 +101,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'zelo_back_end.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
@@ -149,3 +157,15 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 MEDIA_URL = '/media/'
+
+
+
+ASGI_APPLICATION = "user_app.routing.application"
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
