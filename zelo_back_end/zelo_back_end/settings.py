@@ -109,7 +109,7 @@ WSGI_APPLICATION = 'zelo_back_end.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'zelo',
+        'NAME': 'zelo_db',
         'USER': 'zelo_db_admin',
         'PASSWORD': 'sikoka001',
         'HOST': 'localhost',
