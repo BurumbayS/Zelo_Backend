@@ -25,16 +25,16 @@ SECRET_KEY = 'mbb-gu93448=k8ug8&r*070krzdtfj18*ksl7*bt=9yt_06v$%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-                '192.168.0.102',
-                '192.168.0.100',
-                '192.168.0.104',
-                '192.168.0.103',
-                '172.20.10.4',
-                '172.20.10.9',
-                '127.0.0.1',
-                '164.90.181.81',
-                'localhost']
+ALLOWED_HOSTS = ['*']
+                # '192.168.0.102',
+                # '192.168.0.100',
+                # '192.168.0.104',
+                # '192.168.0.103',
+                # '172.20.10.4',
+                # '172.20.10.9',
+                # '127.0.0.1',
+                # '164.90.181.81',
+                # 'localhost']
 CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOW_METHODS = (
