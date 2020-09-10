@@ -2,25 +2,39 @@ import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
-class TestConsumer(WebsocketConsumer):
+class ChatConsumer(WebsocketConsumer):
     def connect(self):
-        Group('users').add(message.reply_channel)
+        self.group_name = 'users'
+
+        async_to_sync(self.channel_layer.group_add)(
+            self.group_name,
+            self.channel_name
+        )
+
+        self.accept()
 
     def disconnect(self, close_code):
-        Group('users').discard(message.reply_channel)
+        async_to_sync(self.channel_layer.group_discard)(
+            self.group_name,
+            self.channel_name
+        )
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
 
+        async_to_sync(self.channel_layer.group_send)(
+            self.group_name,
+            {
+                'type': 'chat_message',
+                'message': message
+            }
+        )
+
+    def chat_message(self, event):
+        message = event['message']
+
+        # Send message to WebSocket
         self.send(text_data=json.dumps({
             'message': message
         }))
-#
-# from channels import Group
-#
-# def ws_connect(message):
-#     Group('users').add(message.reply_channel)
-#
-# def ws_disconnect(message):
-#     Group('users').discard(message.reply_channel)
