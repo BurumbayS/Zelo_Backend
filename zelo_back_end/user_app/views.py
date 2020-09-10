@@ -42,3 +42,7 @@ def newOrder(request):
             "success": True
         }
         return JsonResponse(response, safe = False)
+
+# ----------------------------------------------------------------------- #
+def sockets(request):
+    return render(request, 'index.html')
