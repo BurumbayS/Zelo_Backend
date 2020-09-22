@@ -16,7 +16,7 @@
         const chatSocket = new WebSocket(
             'wss://'
             + window.location.host
-            + '/ws/'
+            + ':8001/ws/'
         );
 
         chatSocket.onmessage = function(e) {
