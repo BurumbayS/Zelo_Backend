@@ -5,8 +5,19 @@ from datetime import datetime, time, date, timedelta
 from .models import(
     Place,
     MenuItem,
-    Order
+    Order,
+    User
 )
+
+class UserSerializer(serializers.ModelSerializer):
+
+    date_joined = serializers.ReadOnlyField()
+
+    class Meta(object):
+        model = User
+        fields = ('id', 'email', 'name', 'address','phonenumber', 'role',
+                  'date_joined', 'password')
+        extra_kwargs = {'password': {'write_only': True}}
 
 class PlaceSerializer(serializers.ModelSerializer):
   class Meta:

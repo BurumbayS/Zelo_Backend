@@ -7,4 +7,5 @@ urlpatterns = [
     path('menuItems/<int:placeID>/', views.menuItems),
     path('order/', views.newOrder),
     path('sockets/', views.sockets),
+    path('register/', views.UserAuth.as_view()),
 ]

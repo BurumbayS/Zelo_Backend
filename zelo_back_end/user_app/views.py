@@ -1,10 +1,31 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .serializers import PlaceSerializer, MenuItemSerializer, OrderSerializer
+from .serializers import PlaceSerializer, MenuItemSerializer, OrderSerializer, UserSerializer
 from .models import Place, MenuItem
 from django.conf import settings
 from rest_framework.parsers import JSONParser
+from rest_framework.views import APIView
+from rest_framework.permissions import (
+    AllowAny,
+    IsAuthenticated,
+)
+
+
+class UserAuth(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        user = request.data
+        serializer = UserSerializer(data=user)
+
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        else:
+            print(serializer.errors)
+
+        return JsonResponse({"error":"user creation error"})
 
 # Create your views here.
 @csrf_exempt
