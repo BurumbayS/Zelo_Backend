@@ -1,11 +1,80 @@
 from django.db import models
 from django.utils.timezone import localtime, now
-from django.contrib.postgres.fields.jsonb import JSONField
+# from django.contrib.postgres.fields.jsonb import JSONField
 import os
 from datetime import datetime, time, date, timedelta
+from enum import Enum
+from django.utils import timezone
+from django.contrib.auth.models import (
+    AbstractBaseUser, PermissionsMixin, BaseUserManager
+)
 
 def get_image_path(instance, filename):
     return os.path.join('place_wallpapers', str(instance.id), filename)
+
+# UserManager - это класс, определяющий методы create_user и createuperuser.
+# Этот класс должен предшествовать классу AbstractBaseUser, который мы определили выше.
+class UserManager(BaseUserManager):
+
+    def _create_user(self, email, password, **extra_fields):
+        """
+        Creates and saves a User with the given email,and password.
+        """
+        if not email:
+            raise ValueError('The given email must be set')
+        try:
+            user = self.model(email=email, **extra_fields)
+            user.set_password(password)
+            user.save(using=self._db)
+            return user
+        except:
+            raise
+
+    def create_user(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_superuser', False)
+        extra_fields.setdefault('is_staff', False)
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        return self._create_user(email, password=password, **extra_fields)
+
+
+class User(AbstractBaseUser, PermissionsMixin):
+
+    """
+    An abstract base class implementing a fully featured User model with
+    admin-compliant permissions.
+
+    """
+    class UserRole(Enum):
+        ADMIN    = "ADMIN"
+        COURIER  = "COURIER"
+        USER     = "USER"
+        BUSINESS = "BUSINESS"
+
+        @classmethod
+        def choices(cls):
+            return tuple((i.name, i.value) for i in cls)
+
+    email = models.EmailField(max_length=40, unique=True)
+    name = models.CharField(max_length=30, blank=True)
+    is_staff = models.BooleanField(default=False)
+    phonenumber = models.CharField(max_length=12, blank=True)
+    role = models.CharField(max_length=20, choices=UserRole.choices(), default=UserRole.USER)
+    address = models.JSONField(blank=True, null=True)
+    date_joined = models.DateTimeField(default=timezone.now)
+
+    objects = UserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['name']
+
+    def save(self, *args, **kwargs):
+        super(User, self).save(*args, **kwargs)
+        return self
 
 # Create your models here.
 class Place(models.Model):
@@ -29,7 +98,7 @@ class Order(models.Model):
     date = models.DateField(auto_now = False, null = True)
     time = models.TimeField(auto_now = False, null = True)
     status = models.CharField(max_length = 20)
-    delivery_address = JSONField()
+    delivery_address = models.JSONField()
     delivery_price = models.IntegerField(default = 0)
     contact_phone = models.CharField(max_length = 20, default = "")
 

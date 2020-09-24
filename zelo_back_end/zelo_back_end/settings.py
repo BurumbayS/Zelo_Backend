@@ -153,6 +153,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 MEDIA_URL = '/media/'
 
 
+AUTH_USER_MODEL = 'user_app.User'
+
+REST_FRAMEWORK = {
+  'DEFAULT_AUTHENTICATION_CLASSES': (
+    'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+  ),
+}
+
 
 ASGI_APPLICATION = "user_app.routing.application"
 CHANNEL_LAYERS = {
