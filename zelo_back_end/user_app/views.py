@@ -11,13 +11,14 @@ from django.conf import settings
 from rest_framework.parsers import JSONParser
 from rest_framework.views import APIView
 from rest_framework_jwt.utils import jwt_payload_handler
+from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.signals import user_logged_in
+from .custom_models import ErrorResponse
 import jwt
 from rest_framework.permissions import (
     AllowAny,
     IsAuthenticated,
 )
-
 
 class UserAuth(APIView):
     permission_classes = (AllowAny,)
@@ -36,41 +37,36 @@ class UserAuth(APIView):
 
 class Login(APIView):
     def post(self, request):
+        email = request.data['email']
+        password = request.data['password']
+
         try:
-            email = request.data['email']
-            password = request.data['password']
-
             user = User.objects.get(email=email, password=password)
-            if user:
-                try:
-                    payload = jwt_payload_handler(user)
-                    token = jwt.encode(payload, settings.SECRET_KEY)
-                    user_logged_in.send(sender=user.__class__,
-                                        request=request, user=user)
-                    serializedUser = UserSerializer(user, many=False)
+        except Exception as e:
+            return ErrorResponse.response("Пользователь с такими данными не существует")
 
-                    response = {
-                        "token": token.decode("utf-8"),
-                        "user" : serializedUser.data
-                    }
-                    return JsonResponse(response, status=200)
+        try:
+            payload = jwt_payload_handler(user)
+            token = jwt.encode(payload, settings.SECRET_KEY)
+            user_logged_in.send(sender=user.__class__,
+                                request=request, user=user)
+            serializedUser = UserSerializer(user, many=False)
 
-                except Exception as e:
-                    raise e
-            else:
-                res = {
-                    'error': 'can not authenticate with the given credentials or the account has been deactivated'}
-                return JsonResponse(res, status=403)
-        except KeyError:
-            res = {'error': 'please provide a email and a password'}
-            return JsonResponse(res)
+            response = {
+                "token": token.decode("utf-8"),
+                "user" : serializedUser.data
+            }
+            return JsonResponse(response, status=200)
+
+        except Exception as e:
+            return ErrorResponse.response("Проблемы с авторизацией")
 
 # Create your views here.
 @csrf_exempt
+@api_view(['GET'])
 def places(request):
     if request.method == 'GET':
         places = Place.objects.all()
-        print(places[0].address);
         serializer = PlaceSerializer(places, many=True)
         return JsonResponse(serializer.data, safe=False)
 
