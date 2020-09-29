@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from .serializers import PlaceSerializer, MenuItemSerializer, OrderSerializer, UserSerializer
 from .models import (
     Place,
@@ -20,6 +21,7 @@ from rest_framework.permissions import (
     IsAuthenticated,
 )
 
+@method_decorator(csrf_exempt, name='dispatch')
 class UserAuth(APIView):
     permission_classes = (AllowAny,)
 
@@ -37,6 +39,7 @@ class UserAuth(APIView):
         else:
             return JsonResponse({"error": serializer.errors})
 
+@method_decorator(csrf_exempt, name='dispatch')
 class Login(APIView):
     def post(self, request):
         email = request.data['email']
