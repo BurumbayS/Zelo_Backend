@@ -27,6 +27,7 @@ SECRET_KEY = 'mbb-gu93448=k8ug8&r*070krzdtfj18*ksl7*bt=9yt_06v$%'
 DEBUG = True
 
 ALLOWED_HOSTS = [
+                '192.168.0.101',
                 'zelodostavka.me',
                 'localhost']
 CORS_ORIGIN_ALLOW_ALL = True

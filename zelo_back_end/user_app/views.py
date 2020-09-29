@@ -29,11 +29,13 @@ class UserAuth(APIView):
 
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data, status=201)
+            response = {
+                'code': 0,
+                'user': serializer.data
+            }
+            return JsonResponse(response, status=201)
         else:
-            print(serializer.errors)
-
-        return JsonResponse({"error":"user creation error"})
+            return JsonResponse({"error": serializer.errors})
 
 class Login(APIView):
     def post(self, request):
@@ -53,6 +55,7 @@ class Login(APIView):
             serializedUser = UserSerializer(user, many=False)
 
             response = {
+                "code": 0,
                 "token": token.decode("utf-8"),
                 "user" : serializedUser.data
             }

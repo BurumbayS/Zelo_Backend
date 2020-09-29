@@ -4,6 +4,7 @@ from channels.generic.websocket import WebsocketConsumer
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
+        self.user = self.scope["user"]
         self.group_name = 'users'
 
         async_to_sync(self.channel_layer.group_add)(
@@ -27,7 +28,8 @@ class ChatConsumer(WebsocketConsumer):
             self.group_name,
             {
                 'type': 'chat_message',
-                'message': message
+                'message': self.user.email,
+                'sender': 'me'
             }
         )
 
