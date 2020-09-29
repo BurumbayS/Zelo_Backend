@@ -20,7 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def get_role(self, obj):
-        return obj.role.value
+        return obj.role
 
 class PlaceSerializer(serializers.ModelSerializer):
   class Meta:
