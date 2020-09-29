@@ -65,6 +65,7 @@ class Login(APIView):
             return JsonResponse(response, status=200)
 
         except Exception as e:
+            print(e)
             return ErrorResponse.response("Проблемы с авторизацией")
 
 # Create your views here.
