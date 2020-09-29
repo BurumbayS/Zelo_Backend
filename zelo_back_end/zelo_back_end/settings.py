@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,6 +27,7 @@ SECRET_KEY = 'mbb-gu93448=k8ug8&r*070krzdtfj18*ksl7*bt=9yt_06v$%'
 DEBUG = True
 
 ALLOWED_HOSTS = [
+                '192.168.0.101',
                 'zelodostavka.me',
                 'localhost']
 CORS_ORIGIN_ALLOW_ALL = True
@@ -133,7 +135,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'Asia/Almaty'
 
@@ -152,6 +154,24 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 MEDIA_URL = '/media/'
 
+
+AUTH_USER_MODEL = 'user_app.User'
+
+JWT_AUTH = {
+
+    'JWT_VERIFY': True,
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_PAYLOAD_HANDLER': 'rest_framework_jwt.utils.jwt_payload_handler',
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=3000),
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+
+}
+
+REST_FRAMEWORK = {
+  'DEFAULT_AUTHENTICATION_CLASSES': (
+    'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+  ),
+}
 
 
 ASGI_APPLICATION = "user_app.routing.application"
