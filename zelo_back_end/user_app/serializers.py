@@ -10,7 +10,7 @@ from .models import(
 )
 
 class UserSerializer(serializers.ModelSerializer):
-
+    role = serializers.SerializerMethodField(source='get_role')
     date_joined = serializers.ReadOnlyField()
 
     class Meta(object):
@@ -18,6 +18,9 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'email', 'name', 'address','phonenumber', 'role',
                   'date_joined', 'password')
         extra_kwargs = {'password': {'write_only': True}}
+
+    def get_role(self, obj):
+        return obj.role.value
 
 class PlaceSerializer(serializers.ModelSerializer):
   class Meta:

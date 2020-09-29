@@ -59,22 +59,22 @@ class User(AbstractBaseUser, PermissionsMixin):
         def choices(cls):
             return tuple((i.name, i.value) for i in cls)
 
-    USER = 'USER'
-    ADMIN = 'ADMIN'
-    COURIER = 'COURIER'
-    BUSINESS = 'BUSINESS'
-    USER_ROLES = (
-        (USER,    'USER'),
-        (ADMIN,   'ADMIN'),
-        (COURIER, 'COURIER'),
-        (BUSINESS,'BUSINESS')
-    )
+    # USER = 'USER'
+    # ADMIN = 'ADMIN'
+    # COURIER = 'COURIER'
+    # BUSINESS = 'BUSINESS'
+    # USER_ROLES = (
+    #     (USER,    'USER'),
+    #     (ADMIN,   'ADMIN'),
+    #     (COURIER, 'COURIER'),
+    #     (BUSINESS,'BUSINESS')
+    # )
 
     email = models.EmailField(max_length=40, unique=True)
     name = models.CharField(max_length=30, blank=True)
     is_staff = models.BooleanField(default=False)
     phonenumber = models.CharField(max_length=12, blank=True)
-    role = models.CharField(max_length=20, choices=USER_ROLES, blank=True)
+    role = models.CharField(max_length=20, choices=UserRole.choices(), blank=True, default=UserRole.USER)
     address = models.JSONField(blank=True, null=True)
     date_joined = models.DateTimeField(default=timezone.now)
 
