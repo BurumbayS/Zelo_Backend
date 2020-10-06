@@ -1,12 +1,23 @@
 import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
+from enum import Enum
+
+class MessageType(Enum):
+    NEW_ORDER        = "NEW_ORDER"
+    DELIVERING_ORDER = "DELIVERING_ORDER"
+    COMPLETED_ORDER  = "COMPLETED_ORDER"
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.user = self.scope["user"]
-        print(self.user)
-        self.group_name = 'users'
+
+        if (self.user.role == "BUSINESS"):
+            self.group_name = f'PLACE_{self.user.place_id.id}'
+        else:
+            self.group_name = f'{self.user.role}'
+
+        print(self.group_name)
 
         async_to_sync(self.channel_layer.group_add)(
             self.group_name,
@@ -23,20 +34,18 @@ class ChatConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-        response = {
-            "hello": "world",
-            "my name is sanzhar": "hi"
+        messageJson = text_data_json['message']
+        message = {
+            'type': 'chat_message',
+            'message': json.dumps(messageJson)
         }
 
-        async_to_sync(self.channel_layer.group_send)(
-            self.group_name,
-            {
-                'type': 'chat_message',
-                'message': self.user.email,
-                'sender': 'me'
-            }
-        )
+        type = messageJson['type']
+
+        if (type == MessageType.NEW_ORDER.value):
+            print(message)
+            # async_to_sync(self.channel_layer.group_send)('to_ADMIN', message)
+            async_to_sync(self.channel_layer.group_send)('to_ADMIN', message)
 
     def chat_message(self, event):
         message = event['message']

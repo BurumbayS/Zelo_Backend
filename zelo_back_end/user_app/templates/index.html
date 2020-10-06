@@ -14,10 +14,10 @@
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
 
         const chatSocket = new WebSocket(
-            'wss://'
+            'ws://'
             + window.location.host
             + '/ws/'
-            + '?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyOCwidXNlcm5hbWUiOiJzZmYyc2RkQG1haWwucnUiLCJleHAiOjE4NjA3NjgzNTUsImVtYWlsIjoic2ZmMnNkZEBtYWlsLnJ1In0.2DQfIB9q-XAkkNqQhonIh311jWAodgdWwUrpoQ3QqiQ'
+            + '?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjozMCwidXNlcm5hbWUiOiJwbGFjZTFAbWFpbC5ydSIsImV4cCI6MTg2MTEyMjc1NCwiZW1haWwiOiJwbGFjZTFAbWFpbC5ydSJ9.O-dI60C5_jkCxy9GbWPUbDuGShAMqpDjHr6kS2bqgpE'
         );
 
         chatSocket.onmessage = function(e) {
@@ -40,7 +40,20 @@
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
             chatSocket.send(JSON.stringify({
-                'message': message
+                "message": {
+                    "type":"NEW_ORDER",
+                    "order": {
+                        "id":null,
+                        "place_id":null,
+                        "status":"NEW",
+                        "order_items":[{"id":1,"name":"Гуйру лагман","price":1300,"count":1}],
+                        "delivery_price":0,
+                        "customer_id":null,
+                        "price":null,
+                        "delivery_address":{"latitude":45.015287294007294,"longitude":78.37601987966758,"firstAddress":"улица Шевченко, 131","secondAddress":"","distance":2534},
+                        "contact_phone":"87779405568"
+                        }
+                    }
             }));
             messageInputDom.value = '';
         };

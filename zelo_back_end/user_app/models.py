@@ -76,6 +76,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     phonenumber = models.CharField(max_length=12, blank=True)
     role = models.CharField(max_length=20, choices=UserRole.choices(), blank=True, default="USER")
     address = models.JSONField(blank=True, null=True)
+    place_id = models.ForeignKey('Place', on_delete = models.CASCADE, blank=True, null=True)
     date_joined = models.DateTimeField(default=timezone.now)
 
     objects = UserManager()

@@ -2,12 +2,15 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 from .serializers import PlaceSerializer, MenuItemSerializer, OrderSerializer, UserSerializer
 from .models import (
     Place,
     MenuItem,
     User
 )
+import json
 from django.conf import settings
 from rest_framework.parsers import JSONParser
 from rest_framework.views import APIView
@@ -98,6 +101,16 @@ def newOrder(request):
         else:
             print(serializer.errors)
             return JsonResponse(serializer.errors, safe = False)
+
+        order_jsonString = json.dumps(serializer.data)
+        message = {
+            'type': 'chat_message',
+            'message': order_jsonString
+        }
+        
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)('ADMIN', message)
+        async_to_sync(channel_layer.group_send)('PLACE_'+str(serializer.data['place_id']), message)
 
         response = {
             "code": 0,
