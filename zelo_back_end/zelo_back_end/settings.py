@@ -29,7 +29,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
                 '192.168.0.101',
                 'zelodostavka.me',
-                'localhost']
+                'localhost',
+                '127.0.0.1']
 CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOW_METHODS = (
