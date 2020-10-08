@@ -44,7 +44,7 @@ class ChatConsumer(WebsocketConsumer):
 
         if (type == MessageType.NEW_ORDER.value):
             print(message)
-            async_to_sync(self.channel_layer.group_send)('to_USER', message)
+            async_to_sync(self.channel_layer.group_send)('USER', message)
             # async_to_sync(self.channel_layer.group_send)('PLACE_1', message)
 
     def chat_message(self, event):
