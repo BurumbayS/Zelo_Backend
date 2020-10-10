@@ -30,6 +30,7 @@ ALLOWED_HOSTS = [
                 '192.168.0.101',
                 'zelodostavka.me',
                 'localhost',
+                '207.154.207.70',
                 '127.0.0.1']
 CORS_ORIGIN_ALLOW_ALL = True
 
