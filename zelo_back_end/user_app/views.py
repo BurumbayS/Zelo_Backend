@@ -8,7 +8,8 @@ from .serializers import PlaceSerializer, MenuItemSerializer, OrderSerializer, U
 from .models import (
     Place,
     MenuItem,
-    User
+    User,
+    Order
 )
 import json
 from django.conf import settings
@@ -91,6 +92,16 @@ def menuItems(request, placeID):
         return JsonResponse(serializer.data, safe=False)
 
 @csrf_exempt
+def get_orders(request):
+    try:
+        orders = Order.objects.filter(id = '18')
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status = 404)
+    if request.method == 'GET':
+        serializer = OrderSerializer(orders, many = True)
+        return JsonResponse(serializer.data, safe=False)
+
+@csrf_exempt
 def newOrder(request):
     if request.method == 'POST':
         data = JSONParser().parse(request)
@@ -107,7 +118,7 @@ def newOrder(request):
             'type': 'chat_message',
             'message': order_jsonString
         }
-        
+
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)('ADMIN', message)
         async_to_sync(channel_layer.group_send)('PLACE_'+str(serializer.data['place_id']), message)

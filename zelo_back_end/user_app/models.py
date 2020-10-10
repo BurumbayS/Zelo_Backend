@@ -107,6 +107,7 @@ class MenuItem(models.Model):
 
 class Order(models.Model):
     place_id = models.ForeignKey('Place', on_delete = models.CASCADE)
+    client_id = models.ForeignKey('User', on_delete=models.SET_NULL, blank=True, null=True)
     date = models.DateField(auto_now = False, null = True)
     time = models.TimeField(auto_now = False, null = True)
     status = models.CharField(max_length = 20)
