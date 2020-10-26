@@ -94,7 +94,7 @@ def menuItems(request, placeID):
 @csrf_exempt
 def get_orders(request):
     try:
-        orders = Order.objects.filter(id = '18')
+        orders = Order.objects.filter(place_id=1)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status = 404)
     if request.method == 'GET':
