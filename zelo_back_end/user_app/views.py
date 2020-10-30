@@ -72,6 +72,32 @@ class Login(APIView):
             print(e)
             return ErrorResponse.response("Проблемы с авторизацией")
 
+@method_decorator(csrf_exempt, name='dispatch')
+class ResetPassword(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def put(self, request):
+        user = request.user
+
+        old_password = request.data['old_password']
+        new_password = request.data['new_password']
+
+        if (user.password != old_password):
+            return ErrorResponse.response("Неверный старый пароль")
+
+        updated_data = {"email": user.email, "password": new_password}
+        serializer = UserSerializer(user, data=updated_data)
+
+        if serializer.is_valid():
+            serializer.save()
+            response = {
+                "code": 0,
+                "success": True
+            }
+            return JsonResponse(response, safe = False)
+
+        return ErrorResponse.response("Не удалось поменять пароль. Попробуйте снова")
+
 # Create your views here.
 @csrf_exempt
 @api_view(['GET'])
