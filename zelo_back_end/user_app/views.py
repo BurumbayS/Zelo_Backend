@@ -158,3 +158,6 @@ def newOrder(request):
 # ----------------------------------------------------------------------- #
 def sockets(request):
     return render(request, 'index.html')
+
+def privacy_policy(request):
+    return render(request, 'privacy_policy.html')
