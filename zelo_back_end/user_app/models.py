@@ -94,7 +94,7 @@ class Place(models.Model):
     description = models.CharField(max_length = 200, blank = True)
     address = models.CharField(max_length = 200, blank = False)
     latitude = models.FloatField(blank = False)
-    longitute = models.FloatField(blank = False)
+    longitude = models.FloatField(blank = False)
     delivery_min_price = models.IntegerField(default = 400)
     wallpaper = models.ImageField(upload_to='place_wallpapers/', blank=True, null=True)
 
