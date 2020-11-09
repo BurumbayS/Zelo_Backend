@@ -28,7 +28,6 @@ from rest_framework.permissions import (
 from requests.exceptions import HTTPError
 from onesignalclient.app_client import OneSignalAppClient
 from onesignalclient.notification import Notification
-from onesignal import OneSignal, DeviceNotification
 
 
 @method_decorator(csrf_exempt, name='dispatch')
