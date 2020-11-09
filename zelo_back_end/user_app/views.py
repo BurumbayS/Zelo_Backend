@@ -110,10 +110,14 @@ class PushNotifications(APIView):
         user = request.user
 
         push_token = request.data['push_token']
+        user_id = request.data['user_id']
 
         try:
             user_token = PushToken.objects.update_or_create(user_email=user.email, defaults={
-                "token": push_token
+                "token": push_token,
+                "user_id": user_id,
+                "status": user.role,
+                "place_id": user.place_id
             })
         except Exception as e:
             print(e)
