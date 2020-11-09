@@ -11,5 +11,7 @@ urlpatterns = [
     path('privacy_policy/', views.privacy_policy),
     path('register/', views.UserAuth.as_view()),
     path('login/', views.Login.as_view()),
-    path('reset_password/', views.ResetPassword.as_view())
+    path('reset_password/', views.ResetPassword.as_view()),
+    path('sendPush/', views.sendNotification),
+    path('push_token/', views.PushNotifications.as_view()),
 ]
