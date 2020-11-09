@@ -28,6 +28,8 @@ from rest_framework.permissions import (
 from requests.exceptions import HTTPError
 from onesignalclient.app_client import OneSignalAppClient
 from onesignalclient.notification import Notification
+from onesignal import OneSignal, DeviceNotification
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class UserAuth(APIView):
@@ -117,7 +119,7 @@ class PushNotifications(APIView):
                 "token": push_token,
                 "user_id": user_id,
                 "status": user.role,
-                "place_id": user.place_id
+                "place_id": user.place_id.id
             })
         except Exception as e:
             print(e)
@@ -172,14 +174,19 @@ def newOrder(request):
             return JsonResponse(serializer.errors, safe = False)
 
         order_jsonString = json.dumps(serializer.data)
-        message = {
-            'type': 'chat_message',
-            'message': order_jsonString
+        data = {
+            "order": order_jsonString
         }
 
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)('ADMIN', message)
-        async_to_sync(channel_layer.group_send)('PLACE_'+str(serializer.data['place_id']), message)
+        sendNotification(data['place_id'], data)
+        # message = {
+        #     'type': 'chat_message',
+        #     'message': order_jsonString
+        # }
+        #
+        # channel_layer = get_channel_layer()
+        # async_to_sync(channel_layer.group_send)('ADMIN', message)
+        # async_to_sync(channel_layer.group_send)('PLACE_'+str(serializer.data['place_id']), message)
 
         response = {
             "code": 0,
@@ -195,18 +202,22 @@ def privacy_policy(request):
     return render(request, 'privacy_policy.html')
 
 
-def sendNotification(request):
-    player_id = '2ac59b90-80d8-4d37-a623-7f6fb04cf648'
+def sendNotification(place_id, data):
+    place = PushToken.objects.get(place_id=place_id)
+    # admin = PushToken.objects.get(status="ADMIN")
+
+    # player_id = '8917ddcc-35fa-485e-9a17-ca11938b6f59'
     os_app_id = '5573dacb-c34f-40f9-a46d-cc427ec3f23c'
     os_apikey = 'YTNjMjI0ZDItMWNmOC00Mzg0LWE0YTYtZmUwNjU4ZTcyYWJh'
-
+    #
     # Init the client
     client = OneSignalAppClient(app_id=os_app_id, app_api_key=os_apikey)
 
     # Creates a new notification
     notification = Notification(os_app_id, Notification.DEVICES_MODE)
-    notification.contents = {'en': "Amir chort"}
-    notification.include_player_ids = [player_id]  # Must be a list!
+    notification.contents = {'en': "Новый заказ"}
+    notification.data = data
+    notification.include_player_ids = [place.user_id]  # Must be a list!
 
     try:
         # Sends it!
@@ -214,4 +225,4 @@ def sendNotification(request):
     except HTTPError as e:
         result = e.response.json()
 
-    # print(result)
+    print(result)
