@@ -9,7 +9,8 @@ from .models import (
     Place,
     MenuItem,
     User,
-    Order
+    Order,
+    PushToken
 )
 import json
 from django.conf import settings
@@ -24,6 +25,9 @@ from rest_framework.permissions import (
     AllowAny,
     IsAuthenticated,
 )
+from requests.exceptions import HTTPError
+from onesignalclient.app_client import OneSignalAppClient
+from onesignalclient.notification import Notification
 
 @method_decorator(csrf_exempt, name='dispatch')
 class UserAuth(APIView):
@@ -98,6 +102,30 @@ class ResetPassword(APIView):
 
         return ErrorResponse.response("Не удалось поменять пароль. Попробуйте снова")
 
+@method_decorator(csrf_exempt, name='dispatch')
+class PushNotifications(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        user = request.user
+
+        push_token = request.data['push_token']
+
+        try:
+            user_token = PushToken.objects.update_or_create(user_email=user.email, defaults={
+                "token": push_token
+            })
+        except Exception as e:
+            print(e)
+            return ErrorResponse.response(e)
+
+
+        response = {
+            "code": 0,
+            "success": True
+        }
+        return JsonResponse(response, safe = False)
+
 # Create your views here.
 @csrf_exempt
 @api_view(['GET'])
@@ -161,3 +189,25 @@ def sockets(request):
 
 def privacy_policy(request):
     return render(request, 'privacy_policy.html')
+
+
+def sendNotification(request):
+    player_id = '2ac59b90-80d8-4d37-a623-7f6fb04cf648'
+    os_app_id = '5573dacb-c34f-40f9-a46d-cc427ec3f23c'
+    os_apikey = 'YTNjMjI0ZDItMWNmOC00Mzg0LWE0YTYtZmUwNjU4ZTcyYWJh'
+
+    # Init the client
+    client = OneSignalAppClient(app_id=os_app_id, app_api_key=os_apikey)
+
+    # Creates a new notification
+    notification = Notification(os_app_id, Notification.DEVICES_MODE)
+    notification.contents = {'en': "Amir chort"}
+    notification.include_player_ids = [player_id]  # Must be a list!
+
+    try:
+        # Sends it!
+        result = client.create_notification(notification)
+    except HTTPError as e:
+        result = e.response.json()
+
+    # print(result)

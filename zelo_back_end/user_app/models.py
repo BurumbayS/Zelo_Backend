@@ -121,3 +121,7 @@ class Order(models.Model):
         self.time = datetime.time(localtime(now()))
         self.delivery_price = 999
         super().save(*args, **kwargs)
+
+class PushToken(models.Model):
+    user_email = models.CharField(max_length=50, primary_key=True)
+    token = models.CharField(max_length=1000, blank = False)
