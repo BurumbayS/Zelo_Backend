@@ -177,7 +177,7 @@ def newOrder(request):
             "order": order_jsonString
         }
 
-        sendNotification(data['place_id'], data)
+        sendNotification(serializer.data['place_id'], data)
         # message = {
         #     'type': 'chat_message',
         #     'message': order_jsonString
