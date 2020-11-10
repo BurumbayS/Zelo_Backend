@@ -131,6 +131,25 @@ class PushNotifications(APIView):
         }
         return JsonResponse(response, safe = False)
 
+@csrf_exempt
+def updateOrderStatus(request):
+    data = JSONParser().parse(request)
+    id = data['id']
+
+    order = Order.objects.get(id=id)
+    order.status = data['status']
+
+    try:
+        order.save()
+    except Exception as error:
+        return ErrorResponse.response(error)
+
+    response = {
+        "code": 0,
+        "success": True
+    }
+    return JsonResponse(response, safe = False)
+
 # Create your views here.
 @csrf_exempt
 @api_view(['GET'])
