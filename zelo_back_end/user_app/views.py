@@ -28,6 +28,8 @@ from rest_framework.permissions import (
 from requests.exceptions import HTTPError
 from onesignalclient.app_client import OneSignalAppClient
 from onesignalclient.notification import Notification
+from datetime import datetime, time, date, timedelta
+from django.utils.timezone import localtime, now
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -149,6 +151,18 @@ def updateOrderStatus(request):
         "success": True
     }
     return JsonResponse(response, safe = False)
+
+@csrf_exempt
+def getOrders(request, placeID):
+    try:
+        today = datetime.date(localtime(now()))
+        placeOrders = Order.objects.filter(place_id = placeID, date = today)
+    except Exception as error:
+        print(error)
+        return ErrorResponse.response(error)
+
+    serializer = OrderSerializer(placeOrders, many=True)
+    return JsonResponse(serializer.data, safe=False)
 
 # Create your views here.
 @csrf_exempt

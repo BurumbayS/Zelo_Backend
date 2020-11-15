@@ -14,5 +14,6 @@ urlpatterns = [
     path('reset_password/', views.ResetPassword.as_view()),
     path('sendPush/', views.sendNotification),
     path('push_token/', views.PushNotifications.as_view()),
-    path('update_order/', views.updateOrderStatus)
+    path('update_order/', views.updateOrderStatus),
+    path('<int:placeID>/orders/', views.getOrders)
 ]
