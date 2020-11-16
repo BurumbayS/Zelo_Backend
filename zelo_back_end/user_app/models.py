@@ -96,14 +96,19 @@ class Place(models.Model):
     latitude = models.FloatField(blank = False)
     longitude = models.FloatField(blank = False)
     delivery_min_price = models.IntegerField(default = 400)
-    wallpaper = models.ImageField(upload_to='place_wallpapers/', blank=True, null=True)
+    wallpaper = models.ImageField(upload_to='place_wallpapers/', blank = True, null = True)
+    categories = models.JSONField(blank = True, null = True)
 
 class MenuItem(models.Model):
     name = models.CharField(max_length = 50, blank = False)
     description = models.CharField(max_length = 200, blank = False)
     price = models.IntegerField(default = 0)
+    category = models.ForeignKey('MenuItemCategory',  on_delete = models.CASCADE, blank = True, null = True)
     place_id = models.ForeignKey('Place', on_delete = models.CASCADE)
     image = models.ImageField(upload_to = 'menu_item_image/', blank = True, null = True)
+
+class MenuItemCategory(models.Model):
+    name = models.CharField(max_length = 100, primary_key = True)
 
 class Order(models.Model):
     place_id = models.ForeignKey('Place', on_delete = models.CASCADE)
