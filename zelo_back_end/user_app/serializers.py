@@ -33,13 +33,20 @@ class MenuItemSerializer(serializers.ModelSerializer):
     fields = "__all__"
 
 class OrderSerializer(serializers.ModelSerializer):
-    client_name = serializers.SerializerMethodField(source='get_client_name')
+    client = serializers.SerializerMethodField(source='get_client')
+    place = serializers.SerializerMethodField(source='get_place')
 
     class Meta:
       model = Order
-      fields = "__all__"
-      extra_fields = ('client_name')
+      fields = ('order_items', 'date', 'time', 'status', 'delivery_address',
+                'delivery_price', 'contact_phone', 'comment', 'client', 'place')
 
-    def get_client_name(self, obj):
+    def get_client(self, obj):
         user = User.objects.get(email = obj.client_id)
-        return user.name
+        serializer = UserSerializer(user)
+        return serializer.data
+
+    def get_place(self, obj):
+        place = Place.objects.get(id = obj.place_id.id)
+        serializer = PlaceSerializer(place)
+        return serializer.data
