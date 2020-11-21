@@ -186,6 +186,7 @@ def menuItems(request, placeID):
 @csrf_exempt
 def getAllOrders(request):
     try:
+        today = datetime.date(localtime(now()))
         orders = Order.objects.filter(date = today)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status = 404)
