@@ -153,7 +153,7 @@ def updateOrderStatus(request):
     return JsonResponse(response, safe = False)
 
 @csrf_exempt
-def getOrders(request, placeID):
+def getPlaceOrders(request, placeID):
     try:
         today = datetime.date(localtime(now()))
         placeOrders = Order.objects.filter(place_id = placeID, date = today)
@@ -184,9 +184,9 @@ def menuItems(request, placeID):
         return JsonResponse(serializer.data, safe=False)
 
 @csrf_exempt
-def get_orders(request):
+def getAllOrders(request):
     try:
-        orders = Order.objects.filter(place_id = 1)
+        orders = Order.objects.filter(date = today)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status = 404)
     if request.method == 'GET':
