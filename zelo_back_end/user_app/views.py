@@ -237,7 +237,7 @@ def privacy_policy(request):
 
 def sendNotification(place_id, data):
     place = PushToken.objects.get(place_id=place_id)
-    # admin = PushToken.objects.get(status="ADMIN")
+    admin = PushToken.objects.get(status="ADMIN")
 
     # player_id = '8917ddcc-35fa-485e-9a17-ca11938b6f59'
     os_app_id = '5573dacb-c34f-40f9-a46d-cc427ec3f23c'
@@ -250,7 +250,7 @@ def sendNotification(place_id, data):
     notification = Notification(os_app_id, Notification.DEVICES_MODE)
     notification.contents = {'en': "Новый заказ"}
     notification.data = data
-    notification.include_player_ids = [place.user_id]  # Must be a list!
+    notification.include_player_ids = [place.user_id, admin.user_id]  # Must be a list!
 
     try:
         # Sends it!
