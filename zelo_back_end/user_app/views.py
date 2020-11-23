@@ -199,11 +199,11 @@ def getAllOrders(request):
         return JsonResponse(serializer.data, safe=False)
 
 def getOrderClient(order):
-    user = User.objects.get(id = order['client'])
+    user = User.objects.get(id = order['client_id'])
     serializer = UserSerializer(user)
     return serializer.data
 def getOrderPlace(order):
-    place = Place.objects.get(id = order['place'])
+    place = Place.objects.get(id = order['place_id'])
     serializer = PlaceSerializer(place)
     return serializer.data
 
@@ -221,14 +221,14 @@ def newOrder(request):
             return JsonResponse(serializer.errors, safe = False)
 
         serializer.data['place'] = getOrderPlace(serializer.data)
-        serializer.data['client'] = getOrdeClient(serializer.data)
+        serializer.data['client'] = getOrderClient(serializer.data)
 
         order_jsonString = json.dumps(serializer.data)
         data = {
             "order": order_jsonString
         }
 
-        sendNotification(serializer.data['place'], data)
+        sendNotification(serializer.data['place_id'], data)
 
         # message = {
         #     'type': 'chat_message',
