@@ -192,7 +192,21 @@ def getAllOrders(request):
         return JsonResponse({"error": str(e)}, status = 404)
     if request.method == 'GET':
         serializer = OrderSerializer(orders, many = True)
+        for order in serializer.data:
+            order['client'] = getOrderClient(order)
+            order['place'] = getOrderPlace(order)
+
         return JsonResponse(serializer.data, safe=False)
+
+def getOrderClient(order):
+    user = User.objects.get(id = order['client'])
+    serializer = UserSerializer(user)
+    return serializer.data
+def getOrderPlace(order):
+    place = Place.objects.get(id = order['place'])
+    serializer = PlaceSerializer(place)
+    return serializer.data
+
 
 @csrf_exempt
 def newOrder(request):
@@ -206,12 +220,16 @@ def newOrder(request):
             print(serializer.errors)
             return JsonResponse(serializer.errors, safe = False)
 
+        serializer.data['place'] = getOrderPlace(serializer.data)
+        serializer.data['client'] = getOrdeClient(serializer.data)
+
         order_jsonString = json.dumps(serializer.data)
         data = {
             "order": order_jsonString
         }
 
-        sendNotification(serializer.data['place_id'], data)
+        sendNotification(serializer.data['place'], data)
+
         # message = {
         #     'type': 'chat_message',
         #     'message': order_jsonString

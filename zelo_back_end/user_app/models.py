@@ -111,8 +111,8 @@ class MenuItemCategory(models.Model):
     name = models.CharField(max_length = 100, primary_key = True)
 
 class Order(models.Model):
-    place_id = models.ForeignKey('Place', on_delete = models.CASCADE)
-    client_id = models.ForeignKey('User', on_delete=models.SET_NULL, blank=True, null=True)
+    place = models.ForeignKey('Place', on_delete = models.CASCADE)
+    client = models.ForeignKey('User', on_delete = models.SET_NULL, blank=True, null=True)
     order_items = models.JSONField(default={})
     date = models.DateField(auto_now = False, null = True)
     time = models.TimeField(auto_now = False, null = True)
