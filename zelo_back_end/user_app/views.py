@@ -162,6 +162,10 @@ def getPlaceOrders(request, placeID):
         return ErrorResponse.response(error)
 
     serializer = OrderSerializer(placeOrders, many=True)
+    for order in serializer.data:
+        order['client'] = getOrderClient(order)
+        order['place'] = getOrderPlace(order)
+
     return JsonResponse(serializer.data, safe=False)
 
 # Create your views here.
