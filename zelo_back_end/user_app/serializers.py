@@ -11,7 +11,7 @@ from .models import(
 
 class UserSerializer(serializers.ModelSerializer):
     role = serializers.SerializerMethodField(source='get_role')
-    date_joined = serializers.ReadOnlyField()
+    # date_joined = serializers.ReadOnlyField()
 
     class Meta(object):
         model = User
