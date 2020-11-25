@@ -224,15 +224,18 @@ def newOrder(request):
             print(serializer.errors)
             return JsonResponse(serializer.errors, safe = False)
 
-        serializer.data['place'] = getOrderPlace(serializer.data)
-        serializer.data['client'] = getOrderClient(serializer.data)
+        order = Order.objects.filter(id=serializer.data['id'])
+        order_serializer = OrderSerializer(order, many=True)
 
-        order_jsonString = json.dumps(serializer.data)
+        order_serializer.data[0]['place'] = getOrderPlace(order_serializer.data[0])
+        order_serializer.data[0]['client'] = getOrderClient(order_serializer.data[0])
+
+        order_jsonString = json.dumps(order_serializer.data[0])
         data = {
             "order": order_jsonString
         }
 
-        sendNotification(serializer.data['place_id'], data)
+        sendNotification(serializer.data[0]['place_id'], data)
 
         # message = {
         #     'type': 'chat_message',
