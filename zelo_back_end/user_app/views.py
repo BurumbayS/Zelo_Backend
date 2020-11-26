@@ -120,7 +120,7 @@ class PushNotifications(APIView):
                 "token": push_token,
                 "user_id": user_id,
                 "status": user.role,
-                "place_id": user.place_id
+                "place_id": user.place_id.id
             })
         except Exception as e:
             print(e)
