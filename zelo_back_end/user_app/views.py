@@ -30,6 +30,7 @@ from onesignalclient.app_client import OneSignalAppClient
 from onesignalclient.notification import Notification
 from datetime import datetime, time, date, timedelta
 from django.utils.timezone import localtime, now
+import random
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -173,7 +174,7 @@ def getPlaceOrders(request, placeID):
 @api_view(['GET'])
 def places(request):
     if request.method == 'GET':
-        places = Place.objects.all()
+        places = Place.objects.all().order_by('?')
         serializer = PlaceSerializer(places, many=True)
         return JsonResponse(serializer.data, safe=False)
 
