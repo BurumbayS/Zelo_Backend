@@ -156,7 +156,7 @@ def updateOrderStatus(request):
 def getPlaceOrders(request, placeID):
     try:
         today = datetime.date(localtime(now()))
-        placeOrders = Order.objects.filter(place_id = placeID, date = today)
+        placeOrders = Order.objects.filter(place_id = placeID, date = today).order_by('-time')
     except Exception as error:
         print(error)
         return ErrorResponse.response(error)
@@ -191,7 +191,7 @@ def menuItems(request, placeID):
 def getAllOrders(request):
     try:
         today = datetime.date(localtime(now()))
-        orders = Order.objects.filter(date = today)
+        orders = Order.objects.filter(date = today).order_by('-time')
     except Exception as e:
         return JsonResponse({"error": str(e)}, status = 404)
     if request.method == 'GET':
@@ -224,18 +224,11 @@ def newOrder(request):
             print(serializer.errors)
             return JsonResponse(serializer.errors, safe = False)
 
-        order = Order.objects.filter(id=serializer.data['id'])
-        order_serializer = OrderSerializer(order, many=True)
-
-        order_serializer.data[0]['place'] = getOrderPlace(order_serializer.data[0])
-        order_serializer.data[0]['client'] = getOrderClient(order_serializer.data[0])
-
-        order_jsonString = json.dumps(order_serializer.data[0])
         data = {
-            "order": order_jsonString
+            "order_id": serializer.data['id']
         }
 
-        sendNotification(order_serializer.data[0]['place_id'], data)
+        sendNotification(serializer.data['place_id'], data)
 
         # message = {
         #     'type': 'chat_message',
@@ -251,6 +244,22 @@ def newOrder(request):
             "success": True
         }
         return JsonResponse(response, safe = False)
+
+@csrf_exempt
+def getOrder(request, order_id):
+    order = Order.objects.filter(id = order_id)
+    serializer = OrderSerializer(order, many = True)
+
+    serializer.data[0]['client'] = getOrderClient(serializer.data[0])
+    serializer.data[0]['place'] = getOrderPlace(serializer.data[0])
+
+    response = {
+        "code": 0,
+        "success": True,
+        "order": serializer.data[0]
+    }
+
+    return JsonResponse(response, safe = False)
 
 # ----------------------------------------------------------------------- #
 def sockets(request):
