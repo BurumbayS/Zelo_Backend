@@ -98,6 +98,7 @@ class Place(models.Model):
     delivery_min_price = models.IntegerField(default = 400)
     wallpaper = models.ImageField(upload_to='place_wallpapers/', blank = True, null = True)
     categories = models.JSONField(blank = True, null = True)
+    not_working = models.BooleanField(default = False, verbose_name = "Не работает")
 
 class MenuItem(models.Model):
     name = models.CharField(max_length = 50, blank = False)
