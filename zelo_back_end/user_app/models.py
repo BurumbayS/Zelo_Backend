@@ -77,7 +77,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     role = models.CharField(max_length=20, choices=UserRole.choices(), blank=True, default="USER")
     address = models.JSONField(blank=True, null=True)
     place_id = models.ForeignKey('Place', on_delete = models.CASCADE, blank=True, null=True)
-    date_joined = models.DateField(default=timezone.now)
+    date_joined = models.DateTimeField(default=timezone.now)
 
     objects = UserManager()
 
