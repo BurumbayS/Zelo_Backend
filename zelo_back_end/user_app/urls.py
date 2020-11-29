@@ -8,7 +8,6 @@ urlpatterns = [
     path('orders/', views.getAllOrders),
     path('order/', views.newOrder),
     path('sockets/', views.sockets),
-    path('privacy_policy/', views.privacy_policy),
     path('register/', views.UserAuth.as_view()),
     path('login/', views.Login.as_view()),
     path('reset_password/', views.ResetPassword.as_view()),
@@ -16,5 +15,8 @@ urlpatterns = [
     path('push_token/', views.PushNotifications.as_view()),
     path('update_order/', views.updateOrderStatus),
     path('<int:placeID>/orders/', views.getPlaceOrders),
-    path('order/<int:order_id>/', views.getOrder)
+    path('order/<int:order_id>/', views.getOrder),
+
+    path('privacy_policy/', views.privacy_policy),
+    path('support/', views.support)
 ]

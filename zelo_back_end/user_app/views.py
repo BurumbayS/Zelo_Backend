@@ -269,6 +269,9 @@ def sockets(request):
 def privacy_policy(request):
     return render(request, 'privacy_policy.html')
 
+def support(request):
+    return render(request, 'support.html')
+
 
 def sendNotification(place_id, data):
     place = PushToken.objects.get(place_id=place_id)
