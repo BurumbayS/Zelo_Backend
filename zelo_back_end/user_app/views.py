@@ -167,7 +167,7 @@ def confirmOrder(request, orderID):
         "order_id": order.id
     }
 
-    place = PushToken.objects.get(place_id = place_id)
+    place = PushToken.objects.get(place_id = order.place_id.id)
     sendNotification(place.user_id, data)
 
     response = {
