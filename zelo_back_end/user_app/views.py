@@ -154,10 +154,33 @@ def updateOrderStatus(request):
     return JsonResponse(response, safe = False)
 
 @csrf_exempt
+def confirmOrder(request, orderID):
+    order = Order.objects.get(id=orderID)
+    order.confirmed = True
+
+    try:
+        order.save()
+    except Exception as error:
+        return ErrorResponse.response(error)
+
+    data = {
+        "order_id": serializer.data['id']
+    }
+
+    place = PushToken.objects.get(place_id = place_id)
+    sendNotification(place.user_id, data)
+
+    response = {
+        "code": 0,
+        "success": True
+    }
+    return JsonResponse(response, safe = False)
+
+@csrf_exempt
 def getPlaceOrders(request, placeID):
     try:
         today = datetime.date(localtime(now()))
-        placeOrders = Order.objects.filter(place_id = placeID, date = today).order_by('-time')
+        placeOrders = Order.objects.filter(place_id = placeID, date = today, confirmed = True).order_by('-time')
     except Exception as error:
         print(error)
         return ErrorResponse.response(error)
@@ -229,7 +252,8 @@ def newOrder(request):
             "order_id": serializer.data['id']
         }
 
-        sendNotification(serializer.data['place_id'], data)
+        admin = PushToken.objects.get(status = "ADMIN")
+        sendNotification(admin.user_id, data)
 
         # message = {
         #     'type': 'chat_message',
@@ -247,8 +271,8 @@ def newOrder(request):
         return JsonResponse(response, safe = False)
 
 @csrf_exempt
-def getOrder(request, order_id):
-    order = Order.objects.filter(id = order_id)
+def getOrder(request, orderID):
+    order = Order.objects.filter(id = orderID)
     serializer = OrderSerializer(order, many = True)
 
     serializer.data[0]['client'] = getOrderClient(serializer.data[0])
@@ -273,22 +297,22 @@ def support(request):
     return render(request, 'support.html')
 
 
-def sendNotification(place_id, data):
-    place = PushToken.objects.get(place_id=place_id)
-    admin = PushToken.objects.get(status="ADMIN")
+def sendNotification(user_id, data):
+    # place = PushToken.objects.get(place_id = place_id)
+    # admin = PushToken.objects.get(status = "ADMIN")
 
     # player_id = '8917ddcc-35fa-485e-9a17-ca11938b6f59'
     os_app_id = '5573dacb-c34f-40f9-a46d-cc427ec3f23c'
     os_apikey = 'YTNjMjI0ZDItMWNmOC00Mzg0LWE0YTYtZmUwNjU4ZTcyYWJh'
     #
     # Init the client
-    client = OneSignalAppClient(app_id=os_app_id, app_api_key=os_apikey)
+    client = OneSignalAppClient(app_id = os_app_id, app_api_key = os_apikey)
 
     # Creates a new notification
     notification = Notification(os_app_id, Notification.DEVICES_MODE)
     notification.contents = {'en': "Новый заказ"}
     notification.data = data
-    notification.include_player_ids = [place.user_id, admin.user_id]  # Must be a list!
+    notification.include_player_ids = [user_id]  # Must be a list!
 
     try:
         # Sends it!

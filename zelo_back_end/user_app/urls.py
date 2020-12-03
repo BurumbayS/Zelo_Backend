@@ -15,7 +15,8 @@ urlpatterns = [
     path('push_token/', views.PushNotifications.as_view()),
     path('update_order/', views.updateOrderStatus),
     path('<int:placeID>/orders/', views.getPlaceOrders),
-    path('order/<int:order_id>/', views.getOrder),
+    path('order/<int:orderID>/', views.getOrder),
+    path('confirm_order/<int:orderID>/', views.confirmOrder),
 
     path('privacy_policy/', views.privacy_policy),
     path('support/', views.support)

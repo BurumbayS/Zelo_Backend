@@ -122,6 +122,7 @@ class Order(models.Model):
     delivery_price = models.IntegerField(default = 0)
     contact_phone = models.CharField(max_length = 20, default = "")
     comment = models.CharField(max_length = 500, blank = True, default = "")
+    confirmed = models.BooleanField(default = False, verbose_name = "Подтвержден")
 
     def save(self, *args, **kwargs):
         self.date = datetime.date(localtime(now()))
