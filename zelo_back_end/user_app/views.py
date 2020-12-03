@@ -164,7 +164,7 @@ def confirmOrder(request, orderID):
         return ErrorResponse.response(error)
 
     data = {
-        "order_id": serializer.data['id']
+        "order_id": order.id
     }
 
     place = PushToken.objects.get(place_id = place_id)
