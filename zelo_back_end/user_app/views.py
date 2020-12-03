@@ -115,13 +115,17 @@ class PushNotifications(APIView):
 
         push_token = request.data['push_token']
         user_id = request.data['user_id']
+        place_id = None
+
+        if (user.place_id != None):
+            place_id = user.place_id.id
 
         try:
             user_token = PushToken.objects.update_or_create(user_email=user.email, defaults={
                 "token": push_token,
                 "user_id": user_id,
                 "status": user.role,
-                "place_id": user.place_id
+                "place_id": place_id
             })
         except Exception as e:
             print(e)
