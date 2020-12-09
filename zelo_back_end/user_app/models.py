@@ -107,6 +107,7 @@ class MenuItem(models.Model):
     category = models.ForeignKey('MenuItemCategory',  on_delete = models.CASCADE, blank = True, null = True)
     place_id = models.ForeignKey('Place', on_delete = models.CASCADE)
     image = models.ImageField(upload_to = 'menu_item_image/', blank = True, null = True)
+    stopped = models.BooleanField(default = False)
 
 class MenuItemCategory(models.Model):
     name = models.CharField(max_length = 100, primary_key = True)
