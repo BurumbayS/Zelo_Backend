@@ -216,6 +216,39 @@ def menuItems(request, placeID):
         return JsonResponse(serializer.data, safe=False)
 
 @csrf_exempt
+def addMenuItemToStopList(request, itemID):
+
+    item = MenuItem.objects.get(id = itemID)
+    item.stopped = True
+
+    try:
+        item.save()
+    except Exception as error:
+        return ErrorResponse.response(error)
+
+    response = {
+        "code": 0,
+        "success": True
+    }
+    return JsonResponse(response, safe = False)
+
+@csrf_exempt
+def removeMenuItemFromStopList(request, itemID):
+    item = MenuItem.objects.get(id = itemID)
+    item.stopped = False
+
+    try:
+        item.save()
+    except Exception as error:
+        return ErrorResponse.response(error)
+
+    response = {
+        "code": 0,
+        "success": True
+    }
+    return JsonResponse(response, safe = False)
+
+@csrf_exempt
 def getAllOrders(request):
     try:
         today = datetime.date(localtime(now()))

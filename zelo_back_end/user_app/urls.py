@@ -5,6 +5,8 @@ from user_app import views
 urlpatterns = [
     path('places/', views.places),
     path('menuItems/<int:placeID>/', views.menuItems),
+    path('menuItems/<int:itemID>/addToStopList/', views.addMenuItemToStopList),
+    path('menuItems/<int:itemID>/removeFromStopList/', views.removeMenuItemFromStopList),
     path('orders/', views.getAllOrders),
     path('order/', views.newOrder),
     path('sockets/', views.sockets),
