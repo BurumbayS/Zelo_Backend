@@ -10,7 +10,8 @@ from .models import (
     MenuItem,
     User,
     Order,
-    PushToken
+    PushToken,
+    YandexMapGeocoderKey
 )
 import json
 from django.conf import settings
@@ -322,6 +323,18 @@ def getOrder(request, orderID):
     }
 
     return JsonResponse(response, safe = False)
+
+@csrf_exempt
+def getMapApiKey(request):
+    keys = YandexMapGeocoderKey.objects.all()
+
+    response = {
+        "code": 0,
+        "success": True,
+        "key": keys[0].key
+    }
+
+    return JsonResponse(response, safe=False)
 
 # ----------------------------------------------------------------------- #
 def sockets(request):

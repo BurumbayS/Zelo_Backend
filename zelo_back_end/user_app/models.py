@@ -136,3 +136,6 @@ class PushToken(models.Model):
     user_id = models.CharField(max_length=1000, blank = False, default = "default")
     status = models.CharField(max_length=100, blank=True)
     place_id = models.IntegerField(blank=True, default=0, null=True)
+
+class YandexMapGeocoderKey(models.Model):
+    key = models.CharField(max_length = 1000)
