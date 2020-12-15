@@ -402,6 +402,22 @@ def privacy_policy(request):
 def support(request):
     return render(request, 'support.html')
 
+def getPlaceTotal(request, placeID):
+    orders = Order.objects.filter(place_id = placeID)
+
+    total = 0
+    for order in orders:
+        for item in order.order_items:
+            total += item['price'] * item['count']
+
+    response = {
+        "code": 0,
+        "success": True,
+        "total": total
+    }
+    return JsonResponse(response, safe = False)
+
+# ---------------------------------------------
 
 def sendNotification(user_id, data):
     # place = PushToken.objects.get(place_id = place_id)
