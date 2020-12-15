@@ -72,11 +72,17 @@ class Login(APIView):
                                 request=request, user=user)
             serializedUser = UserSerializer(user, many=False)
 
+            is_open = False
+            if (user.place_id != None):
+                is_open = user.place_id.not_working
+
             response = {
                 "code": 0,
                 "token": token.decode("utf-8"),
-                "user" : serializedUser.data
+                "user" : serializedUser.data,
+                "is_open": is_open
             }
+
             return JsonResponse(response, status=200)
 
         except Exception as e:
