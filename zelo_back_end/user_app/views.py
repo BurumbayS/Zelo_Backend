@@ -316,7 +316,7 @@ def places(request):
 @csrf_exempt
 def startPlaceShift(request, placeID):
     try:
-        place = Place.objects.get(place_id = placeID)
+        place = Place.objects.get(id = placeID)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status = 404)
 
@@ -336,7 +336,7 @@ def startPlaceShift(request, placeID):
 @csrf_exempt
 def closePlaceShift(request, placeID):
     try:
-        place = Place.objects.get(place_id = placeID)
+        place = Place.objects.get(id = placeID)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status = 404)
 
