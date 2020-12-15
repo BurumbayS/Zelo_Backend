@@ -34,6 +34,8 @@ from django.utils.timezone import localtime, now
 import random
 
 
+# ----------------Authorization---------------------
+
 @method_decorator(csrf_exempt, name='dispatch')
 class UserAuth(APIView):
     permission_classes = (AllowAny,)
@@ -139,6 +141,11 @@ class PushNotifications(APIView):
         }
         return JsonResponse(response, safe = False)
 
+
+
+
+# ---------------------Order's methods------------------------
+
 @csrf_exempt
 def updateOrderStatus(request):
     data = JSONParser().parse(request)
@@ -197,57 +204,20 @@ def getPlaceOrders(request, placeID):
 
     return JsonResponse(serializer.data, safe=False)
 
-# Create your views here.
-@csrf_exempt
-@api_view(['GET'])
-def places(request):
-    if request.method == 'GET':
-        places = Place.objects.all().order_by('?')
-        serializer = PlaceSerializer(places, many=True)
-        return JsonResponse(serializer.data, safe=False)
-
-@csrf_exempt
-def menuItems(request, placeID):
-    try:
-        menuItems = MenuItem.objects.filter(place_id = placeID)
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status = 404)
-    if request.method == 'GET':
-        serializer = MenuItemSerializer(menuItems, many = True)
-        return JsonResponse(serializer.data, safe=False)
-
-@csrf_exempt
-def addMenuItemToStopList(request, itemID):
-
-    item = MenuItem.objects.get(id = itemID)
-    item.stopped = True
-
-    try:
-        item.save()
-    except Exception as error:
-        return ErrorResponse.response(error)
-
-    response = {
-        "code": 0,
-        "success": True
-    }
-    return JsonResponse(response, safe = False)
-
-@csrf_exempt
-def removeMenuItemFromStopList(request, itemID):
-    item = MenuItem.objects.get(id = itemID)
-    item.stopped = False
-
-    try:
-        item.save()
-    except Exception as error:
-        return ErrorResponse.response(error)
-
-    response = {
-        "code": 0,
-        "success": True
-    }
-    return JsonResponse(response, safe = False)
+# @csrf_exempt
+# def getPlaceAllOrders(request, placeID):
+#     try:
+#         placeOrders = Order.objects.filter(place_id = placeID, confirmed = True)
+#     except Exception as error:
+#         print(error)
+#         return ErrorResponse.response(error)
+#
+#     serializer = OrderSerializer(placeOrders, many=True)
+#     for order in serializer.data:
+#         order['client'] = getOrderClient(order)
+#         order['place'] = getOrderPlace(order)
+#
+#     return JsonResponse(serializer.data, safe=False)
 
 @csrf_exempt
 def getAllOrders(request):
@@ -324,17 +294,103 @@ def getOrder(request, orderID):
 
     return JsonResponse(response, safe = False)
 
+
+
+# ---------------Place's methods----------------------
+
+# Create your views here.
 @csrf_exempt
-def getMapApiKey(request):
-    keys = YandexMapGeocoderKey.objects.all()
+@api_view(['GET'])
+def places(request):
+    if request.method == 'GET':
+        places = Place.objects.all().order_by('?')
+        serializer = PlaceSerializer(places, many=True)
+        return JsonResponse(serializer.data, safe=False)
+
+@csrf_exempt
+def startPlaceShift(request, placeID):
+    try:
+        place = Place.objects.get(place_id = placeID)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status = 404)
+
+    place.not_working = False
+
+    try:
+        place.save()
+    except Exception as error:
+        return ErrorResponse.response(error)
 
     response = {
         "code": 0,
-        "success": True,
-        "key": keys[0].key
+        "success": True
     }
+    return JsonResponse(response, safe = False)
 
-    return JsonResponse(response, safe=False)
+@csrf_exempt
+def closePlaceShift(request, placeID):
+    try:
+        place = Place.objects.get(place_id = placeID)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status = 404)
+
+    place.not_working = True
+
+    try:
+        place.save()
+    except Exception as error:
+        return ErrorResponse.response(error)
+
+    response = {
+        "code": 0,
+        "success": True
+    }
+    return JsonResponse(response, safe = False)
+
+
+@csrf_exempt
+def menuItems(request, placeID):
+    try:
+        menuItems = MenuItem.objects.filter(place_id = placeID)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status = 404)
+    if request.method == 'GET':
+        serializer = MenuItemSerializer(menuItems, many = True)
+        return JsonResponse(serializer.data, safe=False)
+
+@csrf_exempt
+def addMenuItemToStopList(request, itemID):
+
+    item = MenuItem.objects.get(id = itemID)
+    item.stopped = True
+
+    try:
+        item.save()
+    except Exception as error:
+        return ErrorResponse.response(error)
+
+    response = {
+        "code": 0,
+        "success": True
+    }
+    return JsonResponse(response, safe = False)
+
+@csrf_exempt
+def removeMenuItemFromStopList(request, itemID):
+    item = MenuItem.objects.get(id = itemID)
+    item.stopped = False
+
+    try:
+        item.save()
+    except Exception as error:
+        return ErrorResponse.response(error)
+
+    response = {
+        "code": 0,
+        "success": True
+    }
+    return JsonResponse(response, safe = False)
+
 
 # ----------------------------------------------------------------------- #
 def sockets(request):
@@ -371,3 +427,15 @@ def sendNotification(user_id, data):
         result = e.response.json()
 
     print(result)
+
+@csrf_exempt
+def getMapApiKey(request):
+    keys = YandexMapGeocoderKey.objects.all()
+
+    response = {
+        "code": 0,
+        "success": True,
+        "key": keys[0].key
+    }
+
+    return JsonResponse(response, safe=False)
