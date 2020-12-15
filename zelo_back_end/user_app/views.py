@@ -309,7 +309,7 @@ def getOrder(request, orderID):
 @api_view(['GET'])
 def places(request):
     if request.method == 'GET':
-        places = Place.objects.all().order_by('?')
+        places = Place.objects.filter(is_active = True).order_by('?')
         serializer = PlaceSerializer(places, many=True)
         return JsonResponse(serializer.data, safe=False)
 

@@ -99,6 +99,7 @@ class Place(models.Model):
     wallpaper = models.ImageField(upload_to='place_wallpapers/', blank = True, null = True)
     categories = models.JSONField(blank = True, null = True)
     not_working = models.BooleanField(default = False, verbose_name = "Не работает")
+    is_active = models.BooleanField(default = False, verbose_name = "Активно")
 
 class MenuItem(models.Model):
     name = models.CharField(max_length = 50, blank = False)
