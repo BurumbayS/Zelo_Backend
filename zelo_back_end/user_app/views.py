@@ -405,15 +405,16 @@ def support(request):
 def getPlaceTotal(request, placeID):
     orders = Order.objects.filter(place_id = placeID)
 
+    count = 0
     total = 0
     for order in orders:
+        count += 1
         for item in order.order_items:
             total += item['price'] * item['count']
 
     response = {
-        "code": 0,
-        "success": True,
-        "total": total
+        "total": total,
+        "count": count,
     }
     return JsonResponse(response, safe = False)
 
