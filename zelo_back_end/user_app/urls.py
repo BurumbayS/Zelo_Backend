@@ -20,7 +20,8 @@ urlpatterns = [
     path('order/<int:orderID>/', views.getOrder),
     path('confirm_order/<int:orderID>/', views.confirmOrder),
 
-    path('allOrders/<int:placeID>/', views.getPlaceTotal),
+    path('allOrders/<int:placeID>/<str:date>/', views.getPlaceTotal),
+    path('allOrders/<str:date>/', views.getTotalForDay),
     path('mapApiKey/', views.getMapApiKey),
     path('privacy_policy/', views.privacy_policy),
     path('support/', views.support)
