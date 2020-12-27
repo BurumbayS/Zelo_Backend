@@ -125,10 +125,12 @@ class Order(models.Model):
     contact_phone = models.CharField(max_length = 20, default = "")
     comment = models.CharField(max_length = 500, blank = True, default = "")
     confirmed = models.BooleanField(default = False, verbose_name = "Подтвержден")
+    canceled = models.BooleanField(default = False, verbose_name = "Отменен")
 
     def save(self, *args, **kwargs):
-        self.date = datetime.date(localtime(now()))
-        self.time = datetime.time(localtime(now()))
+        if (self.date == None) & (self.time == None):
+            self.date = datetime.date(localtime(now()))
+            self.time = datetime.time(localtime(now()))
         super().save(*args, **kwargs)
 
 class PushToken(models.Model):

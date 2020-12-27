@@ -182,11 +182,38 @@ def confirmOrder(request, orderID):
         return ErrorResponse.response(error)
 
     data = {
+        "is_new": True,
+        "is_canceled": False,
         "order_id": order.id
     }
 
     place = PushToken.objects.get(place_id = order.place_id.id)
     sendNotification(place.user_id, data)
+
+    response = {
+        "code": 0,
+        "success": True
+    }
+    return JsonResponse(response, safe = False)
+
+@csrf_exempt
+def cancelOrder(request, orderID):
+    order = Order.objects.get(id=orderID)
+    order.canceled = True
+
+    try:
+        order.save()
+    except Exception as error:
+        return ErrorResponse.response(error)
+
+    data = {
+        "is_new": False,
+        "is_canceled": True,
+        "order_id": order.id
+    }
+
+    admin = PushToken.objects.get(status = "ADMIN")
+    sendNotification(admin.user_id, data)
 
     response = {
         "code": 0,

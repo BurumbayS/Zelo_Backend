@@ -14,6 +14,7 @@ urlpatterns = [
     path('<int:placeID>/orders/', views.getPlaceOrders),
     path('order/<int:orderID>/', views.getOrder),
     path('confirm_order/<int:orderID>/', views.confirmOrder),
+    path('cancel_order/<int:orderID>/', views.cancelOrder),
 
     path('register/', views.UserAuth.as_view()),
     path('login/', views.Login.as_view()),
