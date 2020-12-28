@@ -182,8 +182,6 @@ def confirmOrder(request, orderID):
         return ErrorResponse.response(error)
 
     data = {
-        "is_new": True,
-        "is_canceled": False,
         "order_id": order.id
     }
 
@@ -290,6 +288,8 @@ def newOrder(request):
             return JsonResponse(serializer.errors, safe = False)
 
         data = {
+            "is_new": True,
+            "is_canceled": False,
             "order_id": serializer.data['id']
         }
 
