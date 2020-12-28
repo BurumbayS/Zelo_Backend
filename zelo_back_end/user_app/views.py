@@ -293,8 +293,8 @@ def newOrder(request):
             "order_id": serializer.data['id']
         }
 
-        # admin = PushToken.objects.get(status = "ADMIN")
-        # sendNotification(admin.user_id, data)
+        admin = PushToken.objects.get(status = "ADMIN")
+        sendNotification(admin.user_id, data)
 
         # message = {
         #     'type': 'chat_message',
