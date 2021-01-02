@@ -453,6 +453,40 @@ def getPlaceTotal(request, placeID, date):
     }
     return JsonResponse(response, safe = False)
 
+def getPlaceTotalInRange(request, placeID, startDate, endDate):
+    orders = Order.objects.filter(place_id = placeID, date__range=[startDate, endDate])
+
+    count = 0
+    total = 0
+    for order in orders:
+        count += 1
+        print(order.date)
+        for item in order.order_items:
+            total += item['price'] * item['count']
+
+    response = {
+        "total": total,
+        "count": count,
+    }
+    return JsonResponse(response, safe = False)
+
+def getTotalInRange(request, startDate, endDate):
+    orders = Order.objects.filter(date__range=[startDate, endDate])
+
+    count = 0
+    total = 0
+    for order in orders:
+        count += 1
+        print(order.date)
+        for item in order.order_items:
+            total += item['price'] * item['count']
+
+    response = {
+        "total": total,
+        "count": count,
+    }
+    return JsonResponse(response, safe = False)
+
 def getTotalForDay(request, date):
     orders = Order.objects.filter(date = date)
 

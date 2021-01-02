@@ -27,7 +27,9 @@ urlpatterns = [
     path('place/<int:placeID>/closeShift/', views.closePlaceShift),
 
     path('allOrders/<int:placeID>/<str:date>/', views.getPlaceTotal),
+    path('allOrders/<int:placeID>/<str:startDate>/<str:endDate>/', views.getPlaceTotalInRange),
     path('allOrders/<str:date>/', views.getTotalForDay),
+    path('allOrders/<str:startDate>/<str:endDate>/', views.getTotalInRange),
     path('mapApiKey/', views.getMapApiKey),
     path('privacy_policy/', views.privacy_policy),
     path('support/', views.support),
