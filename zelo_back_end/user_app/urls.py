@@ -12,6 +12,7 @@ urlpatterns = [
     path('order/', views.newOrder),
     path('update_order/', views.updateOrderStatus),
     path('<int:placeID>/orders/', views.getPlaceOrders),
+    path('user_orders/', views.getUserOrders),
     path('order/<int:orderID>/', views.getOrder),
     path('confirm_order/<int:orderID>/', views.confirmOrder),
     path('cancel_order/<int:orderID>/', views.cancelOrder),

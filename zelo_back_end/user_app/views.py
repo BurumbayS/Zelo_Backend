@@ -251,6 +251,20 @@ def getPlaceOrders(request, placeID):
 #     return JsonResponse(serializer.data, safe=False)
 
 @csrf_exempt
+@api_view(['GET'])
+@permission_classes([IsAuthenticated],)
+def getUserOrders(request):
+    userID = request.user.id
+
+    try:
+        orders = Order.objects.filter(client_id = userID).order_by('-date')
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status = 404)
+
+    serializer = OrderSerializer(orders, many = True)
+    return JsonResponse(serializer.data, safe=False)
+
+@csrf_exempt
 def getAllOrders(request):
     try:
         today = datetime.date(localtime(now()))
