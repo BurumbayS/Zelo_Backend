@@ -261,7 +261,11 @@ def getUserOrders(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status = 404)
 
+
     serializer = OrderSerializer(orders, many = True)
+    for order in serializer.data:
+        order['place'] = getOrderPlace(order)
+        
     return JsonResponse(serializer.data, safe=False)
 
 @csrf_exempt
