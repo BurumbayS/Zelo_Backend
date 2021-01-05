@@ -257,7 +257,7 @@ def getUserOrders(request):
     userID = request.user.id
 
     try:
-        orders = Order.objects.filter(client_id = userID).order_by('-date')
+        orders = Order.objects.filter(client_id = userID).order_by('-date','-time')
     except Exception as e:
         return JsonResponse({"error": str(e)}, status = 404)
 
@@ -265,7 +265,7 @@ def getUserOrders(request):
     serializer = OrderSerializer(orders, many = True)
     for order in serializer.data:
         order['place'] = getOrderPlace(order)
-        
+
     return JsonResponse(serializer.data, safe=False)
 
 @csrf_exempt
