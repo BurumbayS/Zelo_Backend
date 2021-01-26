@@ -294,41 +294,46 @@ def getOrderPlace(order):
 
 
 @csrf_exempt
+@api_view(['POST'])
 def newOrder(request):
-    if request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = OrderSerializer(data = data)
+    data = JSONParser().parse(request)
 
-        if serializer.is_valid():
-            serializer.save();
-        else:
-            print(serializer.errors)
-            return JsonResponse(serializer.errors, safe = False)
+    user = request.user
+    data['client_id'] = user.id
+    data['client_name'] = user.name
 
-        data = {
-            "is_new": True,
-            "is_canceled": False,
-            "order_id": serializer.data['id']
-        }
+    serializer = OrderSerializer(data = data)
 
-        admin = PushToken.objects.get(status = "ADMIN")
-        sendNotification(admin.user_id, data)
+    if serializer.is_valid():
+        serializer.save();
+    else:
+        print(serializer.errors)
+        return JsonResponse(serializer.errors, safe = False)
 
-        # message = {
-        #     'type': 'chat_message',
-        #     'message': order_jsonString
-        # }
-        #
-        # channel_layer = get_channel_layer()
-        # async_to_sync(channel_layer.group_send)('ADMIN', message)
-        # async_to_sync(channel_layer.group_send)('PLACE_'+str(serializer.data['place_id']), message)
+    data = {
+        "is_new": True,
+        "is_canceled": False,
+        "order_id": serializer.data['id']
+    }
 
-        response = {
-            "code": 0,
-            "success": True,
-            "order": serializer.data
-        }
-        return JsonResponse(response, safe = False)
+    # admin = PushToken.objects.get(status = "ADMIN")
+    # sendNotification(admin.user_id, data)
+
+    # message = {
+    #     'type': 'chat_message',
+    #     'message': order_jsonString
+    # }
+    #
+    # channel_layer = get_channel_layer()
+    # async_to_sync(channel_layer.group_send)('ADMIN', message)
+    # async_to_sync(channel_layer.group_send)('PLACE_'+str(serializer.data['place_id']), message)
+
+    response = {
+        "code": 0,
+        "success": True,
+        "order": serializer.data
+    }
+    return JsonResponse(response, safe = False)
 
 @csrf_exempt
 def getOrder(request, orderID):
