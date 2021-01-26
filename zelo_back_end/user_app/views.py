@@ -11,7 +11,8 @@ from .models import (
     User,
     Order,
     PushToken,
-    YandexMapGeocoderKey
+    YandexMapGeocoderKey,
+    AuthToken
 )
 import json
 from django.conf import settings
@@ -75,6 +76,14 @@ class Login(APIView):
             is_open = False
             if (user.place_id != None):
                 is_open = user.place_id.not_working
+
+            try:
+                auth_token = AuthToken.objects.update_or_create(user = user, defaults={
+                    "token": token.decode("utf-8")
+                })
+            except Exception as e:
+                print(e)
+                return ErrorResponse.response(e)
 
             response = {
                 "code": 0,
@@ -298,7 +307,14 @@ def getOrderPlace(order):
 def newOrder(request):
     data = JSONParser().parse(request)
 
-    user = request.user
+    token = request.auth.decode('utf8')
+    try:
+        auth_token = AuthToken.objects.get(token = token)
+        user = auth_token.user
+    except Exception as e:
+        print(e)
+        return ErrorResponse.response("Ваш логин и пароль были использованы на другом устройстве, либо вы находитесь не в этом городе")
+
     data['client_id'] = user.id
     data['client_name'] = user.name
 

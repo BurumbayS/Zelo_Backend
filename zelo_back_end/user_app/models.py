@@ -88,6 +88,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         super(User, self).save(*args, **kwargs)
         return self
 
+class AuthToken(models.Model):
+    user = models.ForeignKey('User', on_delete = models.CASCADE, primary_key = True)
+    token = models.CharField(max_length = 1000, blank = False)
+
 # Create your models here.
 class Place(models.Model):
     name = models.CharField(max_length = 50, blank = False)
