@@ -167,7 +167,8 @@ def updateOrderStatus(request):
     id = data['id']
 
     order = Order.objects.get(id=id)
-    order.status = data['status']
+    if (order.status != 'COMPLETED'):
+        order.status = data['status']
 
     try:
         order.save()
