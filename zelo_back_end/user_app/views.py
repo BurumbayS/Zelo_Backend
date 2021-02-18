@@ -308,14 +308,17 @@ def getOrderPlace(order):
 def newOrder(request):
     data = JSONParser().parse(request)
 
-    token = request.auth.decode('utf8')
-    try:
-        auth_token = AuthToken.objects.get(token = token)
-        user = auth_token.user
-    except Exception as e:
-        print(e)
-        return ErrorResponse.response("Ваш логин и пароль были использованы на другом устройстве, либо вы находитесь не в этом городе")
+    # # get token from header
+    # token = request.META['HTTP_AUTHORIZATION'].split(' ')[1]
+    # userJson = jwt.decode(token, None, None)
+    #
+    # # check if there is an user in a current city db
+    # try:
+    #     user = User.objects.get(email = userJson['email'])
 
+    # token = request.auth.decode('utf8')
+
+    user = request.user
     data['client_id'] = user.id
     data['client_name'] = user.name
 
@@ -333,8 +336,8 @@ def newOrder(request):
         "order_id": serializer.data['id']
     }
 
-    # admin = PushToken.objects.get(status = "ADMIN")
-    # sendNotification(admin.user_id, data)
+    admin = PushToken.objects.get(status = "ADMIN")
+    sendNotification(admin.user_id, data)
 
     # message = {
     #     'type': 'chat_message',
