@@ -1,0 +1,9 @@
+[programm:zelo_asgi]
+command=/home/burumbays/Zelo_Backend/myvenv/bin/daphne -p 8002 zelo_back_end.asgi::application
+directory=/home/burumbays/Zelo_Backend/zelo_back_end
+user=burumbays
+stdout_logfile=/home/burumbays/log/asgi/zelo.log
+strerr_logfile=/home/burumbays/log/asgi/zelo.log
+redirect_stderr=true
+autostart=true
+autorestart=true

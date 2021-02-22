@@ -10,7 +10,9 @@ from .models import (
     MenuItem,
     User,
     Order,
-    PushToken
+    PushToken,
+    YandexMapGeocoderKey,
+    AuthToken
 )
 import json
 from django.conf import settings
@@ -28,7 +30,12 @@ from rest_framework.permissions import (
 from requests.exceptions import HTTPError
 from onesignalclient.app_client import OneSignalAppClient
 from onesignalclient.notification import Notification
+from datetime import datetime, time, date, timedelta
+from django.utils.timezone import localtime, now
+import random
 
+
+# ----------------Authorization---------------------
 
 @method_decorator(csrf_exempt, name='dispatch')
 class UserAuth(APIView):
@@ -66,11 +73,25 @@ class Login(APIView):
                                 request=request, user=user)
             serializedUser = UserSerializer(user, many=False)
 
+            is_open = False
+            if (user.place_id != None):
+                is_open = user.place_id.not_working
+
+            try:
+                auth_token = AuthToken.objects.update_or_create(user = user, defaults={
+                    "token": token.decode("utf-8")
+                })
+            except Exception as e:
+                print(e)
+                return ErrorResponse.response(e)
+
             response = {
                 "code": 0,
                 "token": token.decode("utf-8"),
-                "user" : serializedUser.data
+                "user" : serializedUser.data,
+                "is_open": is_open
             }
+
             return JsonResponse(response, status=200)
 
         except Exception as e:
@@ -112,13 +133,17 @@ class PushNotifications(APIView):
 
         push_token = request.data['push_token']
         user_id = request.data['user_id']
+        place_id = None
+
+        if (user.place_id != None):
+            place_id = user.place_id.id
 
         try:
             user_token = PushToken.objects.update_or_create(user_email=user.email, defaults={
                 "token": push_token,
                 "user_id": user_id,
                 "status": user.role,
-                "place_id": user.place_id.id
+                "place_id": place_id
             })
         except Exception as e:
             print(e)
@@ -131,13 +156,19 @@ class PushNotifications(APIView):
         }
         return JsonResponse(response, safe = False)
 
+
+
+
+# ---------------------Order's methods------------------------
+
 @csrf_exempt
 def updateOrderStatus(request):
     data = JSONParser().parse(request)
     id = data['id']
 
     order = Order.objects.get(id=id)
-    order.status = data['status']
+    if (order.status != 'COMPLETED'):
+        order.status = data['status']
 
     try:
         order.save()
@@ -150,14 +181,249 @@ def updateOrderStatus(request):
     }
     return JsonResponse(response, safe = False)
 
+@csrf_exempt
+def confirmOrder(request, orderID):
+    order = Order.objects.get(id=orderID)
+    order.confirmed = True
+
+    try:
+        order.save()
+    except Exception as error:
+        return ErrorResponse.response(error)
+
+    data = {
+        "order_id": order.id
+    }
+
+    place = PushToken.objects.get(place_id = order.place_id.id)
+    sendNotification(place.user_id, data)
+
+    response = {
+        "code": 0,
+        "success": True
+    }
+    return JsonResponse(response, safe = False)
+
+@csrf_exempt
+def cancelOrder(request, orderID):
+    order = Order.objects.get(id=orderID)
+    order.canceled = True
+
+    try:
+        order.save()
+    except Exception as error:
+        return ErrorResponse.response(error)
+
+    data = {
+        "is_new": False,
+        "is_canceled": True,
+        "order_id": order.id
+    }
+
+    admin = PushToken.objects.get(status = "ADMIN")
+    sendNotification(admin.user_id, data)
+
+    response = {
+        "code": 0,
+        "success": True
+    }
+    return JsonResponse(response, safe = False)
+
+@csrf_exempt
+def getPlaceOrders(request, placeID):
+    try:
+        today = datetime.date(localtime(now()))
+        placeOrders = Order.objects.filter(place_id = placeID, date = today, confirmed = True).order_by('-time')
+    except Exception as error:
+        print(error)
+        return ErrorResponse.response(error)
+
+    serializer = OrderSerializer(placeOrders, many=True)
+    for order in serializer.data:
+        order['client'] = getOrderClient(order)
+        order['place'] = getOrderPlace(order)
+
+    return JsonResponse(serializer.data, safe=False)
+
+# @csrf_exempt
+# def getPlaceAllOrders(request, placeID):
+#     try:
+#         placeOrders = Order.objects.filter(place_id = placeID, confirmed = True)
+#     except Exception as error:
+#         print(error)
+#         return ErrorResponse.response(error)
+#
+#     serializer = OrderSerializer(placeOrders, many=True)
+#     for order in serializer.data:
+#         order['client'] = getOrderClient(order)
+#         order['place'] = getOrderPlace(order)
+#
+#     return JsonResponse(serializer.data, safe=False)
+
+@csrf_exempt
+@api_view(['GET'])
+@permission_classes([IsAuthenticated],)
+def getUserOrders(request):
+    userID = request.user.id
+
+    try:
+        orders = Order.objects.filter(client_id = userID).order_by('-date','-time')
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status = 404)
+
+
+    serializer = OrderSerializer(orders, many = True)
+    for order in serializer.data:
+        order['place'] = getOrderPlace(order)
+
+    return JsonResponse(serializer.data, safe=False)
+
+@csrf_exempt
+def getAllOrders(request):
+    try:
+        today = datetime.date(localtime(now()))
+        orders = Order.objects.filter(date = today).order_by('-time')
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status = 404)
+    if request.method == 'GET':
+        serializer = OrderSerializer(orders, many = True)
+        for order in serializer.data:
+            order['client'] = getOrderClient(order)
+            order['place'] = getOrderPlace(order)
+
+        return JsonResponse(serializer.data, safe=False)
+
+def getOrderClient(order):
+    user = User.objects.get(id = order['client_id'])
+    serializer = UserSerializer(user)
+    return serializer.data
+def getOrderPlace(order):
+    place = Place.objects.get(id = order['place_id'])
+    serializer = PlaceSerializer(place)
+    return serializer.data
+
+
+@csrf_exempt
+@api_view(['POST'])
+def newOrder(request):
+    data = JSONParser().parse(request)
+
+    # # get token from header
+    # token = request.META['HTTP_AUTHORIZATION'].split(' ')[1]
+    # userJson = jwt.decode(token, None, None)
+    #
+    # # check if there is an user in a current city db
+    # try:
+    #     user = User.objects.get(email = userJson['email'])
+
+    # token = request.auth.decode('utf8')
+
+    user = request.user
+    data['client_id'] = user.id
+    data['client_name'] = user.name
+
+    serializer = OrderSerializer(data = data)
+
+    if serializer.is_valid():
+        serializer.save();
+    else:
+        print(serializer.errors)
+        return JsonResponse(serializer.errors, safe = False)
+
+    data = {
+        "is_new": True,
+        "is_canceled": False,
+        "order_id": serializer.data['id']
+    }
+
+    admin = PushToken.objects.get(status = "ADMIN")
+    sendNotification(admin.user_id, data)
+
+    # message = {
+    #     'type': 'chat_message',
+    #     'message': order_jsonString
+    # }
+    #
+    # channel_layer = get_channel_layer()
+    # async_to_sync(channel_layer.group_send)('ADMIN', message)
+    # async_to_sync(channel_layer.group_send)('PLACE_'+str(serializer.data['place_id']), message)
+
+    response = {
+        "code": 0,
+        "success": True,
+        "order": serializer.data
+    }
+    return JsonResponse(response, safe = False)
+
+@csrf_exempt
+def getOrder(request, orderID):
+    order = Order.objects.filter(id = orderID)
+    serializer = OrderSerializer(order, many = True)
+
+    serializer.data[0]['client'] = getOrderClient(serializer.data[0])
+    serializer.data[0]['place'] = getOrderPlace(serializer.data[0])
+
+    response = {
+        "code": 0,
+        "success": True,
+        "order": serializer.data[0]
+    }
+
+    return JsonResponse(response, safe = False)
+
+
+
+# ---------------Place's methods----------------------
+
 # Create your views here.
 @csrf_exempt
 @api_view(['GET'])
 def places(request):
     if request.method == 'GET':
-        places = Place.objects.all()
+        places = Place.objects.filter(is_active = True).order_by('?')
         serializer = PlaceSerializer(places, many=True)
         return JsonResponse(serializer.data, safe=False)
+
+@csrf_exempt
+def startPlaceShift(request, placeID):
+    try:
+        place = Place.objects.get(id = placeID)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status = 404)
+
+    place.not_working = False
+
+    try:
+        place.save()
+    except Exception as error:
+        return ErrorResponse.response(error)
+
+    response = {
+        "code": 0,
+        "success": True
+    }
+    return JsonResponse(response, safe = False)
+
+@csrf_exempt
+def closePlaceShift(request, placeID):
+    try:
+        place = Place.objects.get(id = placeID)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status = 404)
+
+    place.not_working = True
+
+    try:
+        place.save()
+    except Exception as error:
+        return ErrorResponse.response(error)
+
+    response = {
+        "code": 0,
+        "success": True
+    }
+    return JsonResponse(response, safe = False)
+
 
 @csrf_exempt
 def menuItems(request, placeID):
@@ -170,47 +436,38 @@ def menuItems(request, placeID):
         return JsonResponse(serializer.data, safe=False)
 
 @csrf_exempt
-def get_orders(request):
+def addMenuItemToStopList(request, itemID):
+
+    item = MenuItem.objects.get(id = itemID)
+    item.stopped = True
+
     try:
-        orders = Order.objects.filter(place_id=1)
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status = 404)
-    if request.method == 'GET':
-        serializer = OrderSerializer(orders, many = True)
-        return JsonResponse(serializer.data, safe=False)
+        item.save()
+    except Exception as error:
+        return ErrorResponse.response(error)
+
+    response = {
+        "code": 0,
+        "success": True
+    }
+    return JsonResponse(response, safe = False)
 
 @csrf_exempt
-def newOrder(request):
-    if request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = OrderSerializer(data = data)
+def removeMenuItemFromStopList(request, itemID):
+    item = MenuItem.objects.get(id = itemID)
+    item.stopped = False
 
-        if serializer.is_valid():
-            serializer.save();
-        else:
-            print(serializer.errors)
-            return JsonResponse(serializer.errors, safe = False)
+    try:
+        item.save()
+    except Exception as error:
+        return ErrorResponse.response(error)
 
-        order_jsonString = json.dumps(serializer.data)
-        data = {
-            "order": order_jsonString
-        }
+    response = {
+        "code": 0,
+        "success": True
+    }
+    return JsonResponse(response, safe = False)
 
-        sendNotification(serializer.data['place_id'], data)
-        # message = {
-        #     'type': 'chat_message',
-        #     'message': order_jsonString
-        # }
-        #
-        # channel_layer = get_channel_layer()
-        # async_to_sync(channel_layer.group_send)('ADMIN', message)
-        # async_to_sync(channel_layer.group_send)('PLACE_'+str(serializer.data['place_id']), message)
-
-        response = {
-            "code": 0,
-            "success": True
-        }
-        return JsonResponse(response, safe = False)
 
 # ----------------------------------------------------------------------- #
 def sockets(request):
@@ -219,23 +476,94 @@ def sockets(request):
 def privacy_policy(request):
     return render(request, 'privacy_policy.html')
 
+def support(request):
+    return render(request, 'support.html')
 
-def sendNotification(place_id, data):
-    place = PushToken.objects.get(place_id=place_id)
-    # admin = PushToken.objects.get(status="ADMIN")
+def getPlaceTotal(request, placeID, date):
+    orders = Order.objects.filter(place_id = placeID, date = date)
+
+    count = 0
+    total = 0
+    for order in orders:
+        count += 1
+        print(order.date)
+        for item in order.order_items:
+            total += item['price'] * item['count']
+
+    response = {
+        "total": total,
+        "count": count,
+    }
+    return JsonResponse(response, safe = False)
+
+def getPlaceTotalInRange(request, placeID, startDate, endDate):
+    orders = Order.objects.filter(place_id = placeID, date__range=[startDate, endDate])
+
+    count = 0
+    total = 0
+    for order in orders:
+        count += 1
+        print(order.date)
+        for item in order.order_items:
+            total += item['price'] * item['count']
+
+    response = {
+        "total": total,
+        "count": count,
+    }
+    return JsonResponse(response, safe = False)
+
+def getTotalInRange(request, startDate, endDate):
+    orders = Order.objects.filter(date__range=[startDate, endDate])
+
+    count = 0
+    total = 0
+    for order in orders:
+        count += 1
+        print(order.date)
+        for item in order.order_items:
+            total += item['price'] * item['count']
+
+    response = {
+        "total": total,
+        "count": count,
+    }
+    return JsonResponse(response, safe = False)
+
+def getTotalForDay(request, date):
+    orders = Order.objects.filter(date = date)
+
+    count = 0
+    total = 0
+    for order in orders:
+        count += 1
+        print(order.date)
+        for item in order.order_items:
+            total += item['price'] * item['count']
+
+    response = {
+        "total": total,
+        "count": count,
+    }
+    return JsonResponse(response, safe = False)
+# ---------------------------------------------
+
+def sendNotification(user_id, data):
+    # place = PushToken.objects.get(place_id = place_id)
+    # admin = PushToken.objects.get(status = "ADMIN")
 
     # player_id = '8917ddcc-35fa-485e-9a17-ca11938b6f59'
     os_app_id = '5573dacb-c34f-40f9-a46d-cc427ec3f23c'
     os_apikey = 'YTNjMjI0ZDItMWNmOC00Mzg0LWE0YTYtZmUwNjU4ZTcyYWJh'
     #
     # Init the client
-    client = OneSignalAppClient(app_id=os_app_id, app_api_key=os_apikey)
+    client = OneSignalAppClient(app_id = os_app_id, app_api_key = os_apikey)
 
     # Creates a new notification
     notification = Notification(os_app_id, Notification.DEVICES_MODE)
     notification.contents = {'en': "Новый заказ"}
     notification.data = data
-    notification.include_player_ids = [place.user_id]  # Must be a list!
+    notification.include_player_ids = [user_id]  # Must be a list!
 
     try:
         # Sends it!
@@ -244,3 +572,15 @@ def sendNotification(place_id, data):
         result = e.response.json()
 
     print(result)
+
+@csrf_exempt
+def getMapApiKey(request):
+    keys = YandexMapGeocoderKey.objects.all()
+
+    response = {
+        "code": 0,
+        "success": True,
+        "key": keys[0].key
+    }
+
+    return JsonResponse(response, safe=False)

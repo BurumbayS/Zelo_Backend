@@ -1,0 +1,9 @@
+[programm:zelo]
+command=/home/burumbays/Zelo_Backend/myvenv/bin/gunicorn zelo_back_end.wsgi:application --log-level=debug --log-file=- -c /home/burumbays/Zelo_Backend/zelo_back_end/configs/gunicorn.py
+directory=/home/burumbays/Zelo_Backend/zelo_back_end
+user=burumbays
+stdout_logfile=/home/burumbays/log/gunicorn/zelo.log
+strerr_logfile=/home/burumbays/log/gunicorn/zelo.log
+redirect_stderr=true
+autostart=true
+autorestart=true
