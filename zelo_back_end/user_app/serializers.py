@@ -11,7 +11,7 @@ from .models import(
 
 class UserSerializer(serializers.ModelSerializer):
     role = serializers.SerializerMethodField(source='get_role')
-    date_joined = serializers.ReadOnlyField()
+    # date_joined = serializers.ReadOnlyField()
 
     class Meta(object):
         model = User
@@ -33,13 +33,21 @@ class MenuItemSerializer(serializers.ModelSerializer):
     fields = "__all__"
 
 class OrderSerializer(serializers.ModelSerializer):
-    client_name = serializers.SerializerMethodField(source='get_client_name')
+    # client = serializers.SerializerMethodField(source='get_client')
+    # place = serializers.SerializerMethodField(source='get_place')
 
     class Meta:
       model = Order
       fields = "__all__"
-      extra_fields = ('client_name')
 
-    def get_client_name(self, obj):
-        user = User.objects.get(email = obj.client_id)
-        return user.name
+    # def get_client(self, obj):
+    #     print(obj)
+    #     user = User.objects.get(email = obj.client)
+    #     serializer = UserSerializer(user)
+    #     return serializer.data
+    #
+    # def get_place(self, obj):
+    #     print(obj.place_id)
+    #     place = Place.objects.get(id = obj.place.id)
+    #     serializer = PlaceSerializer(place)
+    #     return serializer.data
