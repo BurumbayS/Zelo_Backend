@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Place, MenuItem, Order, User, PushToken, MenuItemCategory, YandexMapGeocoderKey, AuthToken
+from .models import Place, MenuItem, Order, User, PushToken, MenuItemCategory, YandexMapGeocoderKey, AuthToken, Promocode, PromocodeType
 
 # Register your models here.
 admin.site.register(Place)
@@ -10,3 +10,5 @@ admin.site.register(PushToken)
 admin.site.register(MenuItemCategory)
 admin.site.register(YandexMapGeocoderKey)
 admin.site.register(AuthToken)
+admin.site.register(Promocode)
+admin.site.register(PromocodeType)

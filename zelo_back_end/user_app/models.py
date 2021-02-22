@@ -137,8 +137,18 @@ class Order(models.Model):
             self.time = datetime.time(localtime(now()))
         super().save(*args, **kwargs)
 
+class PromocodeType(models.Model):
+    name = models.CharField(max_length = 100, primary_key = True)
+
+class Promocode(models.Model):
+    code = models.CharField(max_length = 50, primary_key = True, verbose_name = "Промокод")
+    type = models.ForeignKey('PromocodeType', on_delete = models.CASCADE, verbose_name = "Тип")
+    sale = models.IntegerField(blank = True, default = 0, verbose_name = "Скидка %")
+    bonus = models.IntegerField(blank = True, default = 0, verbose_name = "Бонус тг")
+    place = models.ForeignKey('Place', on_delete = models.CASCADE, blank = True, null = True,verbose_name = "Заведение")
+
 class PushToken(models.Model):
-    user_email = models.CharField(max_length=50, primary_key=True)
+    user_email = models.CharField(max_length=50, primary_key = True)
     token = models.CharField(max_length=1000, blank = False)
     user_id = models.CharField(max_length=1000, blank = False, default = "default")
     status = models.CharField(max_length=100, blank=True)
