@@ -145,7 +145,12 @@ class Promocode(models.Model):
     type = models.ForeignKey('PromocodeType', on_delete = models.CASCADE, verbose_name = "Тип")
     sale = models.IntegerField(blank = True, default = 0, verbose_name = "Скидка %")
     bonus = models.IntegerField(blank = True, default = 0, verbose_name = "Бонус тг")
+    is_multiple = models.BooleanField(default = False, verbose_name = "Многоразовый")
     place = models.ForeignKey('Place', on_delete = models.CASCADE, blank = True, null = True,verbose_name = "Заведение")
+
+class UsedPromocode(models.Model):
+    code = models.ForeignKey('Promocode', on_delete = models.CASCADE)
+    user = models.ForeignKey('User', on_delete = models.CASCADE)
 
 class PushToken(models.Model):
     user_email = models.CharField(max_length=50, primary_key = True)
