@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from .serializers import PlaceSerializer, MenuItemSerializer, OrderSerializer, UserSerializer
+from .serializers import PlaceSerializer, MenuItemSerializer, OrderSerializer, UserSerializer, PromocodeSerializer
 from .models import (
     Place,
     MenuItem,
@@ -12,7 +12,9 @@ from .models import (
     Order,
     PushToken,
     YandexMapGeocoderKey,
-    AuthToken
+    AuthToken,
+    UsedPromocode,
+    Promocode
 )
 import json
 from django.conf import settings
@@ -466,6 +468,53 @@ def removeMenuItemFromStopList(request, itemID):
         "code": 0,
         "success": True
     }
+    return JsonResponse(response, safe = False)
+
+# ------------------------------------------------------------------------ #
+@csrf_exempt
+@api_view(['POST'])
+def activatePromoCode(request):
+    data = JSONParser().parse(request)
+    user = request.user
+
+    try:
+        promoCode = Promocode.objects.get(code = data['promoCode'])
+    except Exception as e:
+        print(e)
+        return ErrorResponse.response('Неверный промокод')
+
+    if (promoCode.is_multiple == False):
+        usedPromoCode = UsedPromocode.objects.filter(code = data['promoCode'], user = user)
+
+        if (usedPromoCode.count() == 0):
+            newUsedPromoCode = UsedPromocode(code = promoCode, user = user)
+
+            try:
+                newUsedPromoCode.save()
+            except Exception as e:
+                print(e)
+                return ErrorResponse.response('Ошибка активации промокода')
+
+            serializer = PromocodeSerializer(promoCode)
+
+            response = {
+                "code": 0,
+                "success": True,
+                "promoCode": serializer.data
+            }
+
+            return JsonResponse(response, safe = False)
+
+        return ErrorResponse.response('Вы уже использовали данный промокод')
+
+    serializer = PromocodeSerializer(promoCode)
+
+    response = {
+        "code": 0,
+        "success": True,
+        "promoCode": serializer.data
+    }
+
     return JsonResponse(response, safe = False)
 
 

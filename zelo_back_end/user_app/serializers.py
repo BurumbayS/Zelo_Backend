@@ -6,7 +6,8 @@ from .models import(
     Place,
     MenuItem,
     Order,
-    User
+    User,
+    Promocode
 )
 
 class UserSerializer(serializers.ModelSerializer):
@@ -51,3 +52,8 @@ class OrderSerializer(serializers.ModelSerializer):
     #     place = Place.objects.get(id = obj.place.id)
     #     serializer = PlaceSerializer(place)
     #     return serializer.data
+
+class PromocodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Promocode
+        fields = "__all__"
