@@ -7,7 +7,8 @@ from .models import(
     MenuItem,
     Order,
     User,
-    Promocode
+    Promocode,
+    PromocodeType
 )
 
 class UserSerializer(serializers.ModelSerializer):
@@ -53,7 +54,20 @@ class OrderSerializer(serializers.ModelSerializer):
     #     serializer = PlaceSerializer(place)
     #     return serializer.data
 
+class PromocodeTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PromocodeType
+        fields = "__all__"
+
 class PromocodeSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField(source='get_type')
+
     class Meta:
         model = Promocode
-        fields = "__all__"
+        fields = ('code', 'bonus', 'sale', 'place', 'type')
+
+    def get_type(self, obj):
+        print(obj.type)
+        type = PromocodeType.objects.get(name = obj.type.name)
+        serializer = PromocodeTypeSerializer(type)
+        return serializer.data

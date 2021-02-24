@@ -139,6 +139,7 @@ class Order(models.Model):
 
 class PromocodeType(models.Model):
     name = models.CharField(max_length = 100, primary_key = True)
+    type = models.CharField(max_length = 50, blank = False, default = "")
 
 class Promocode(models.Model):
     code = models.CharField(max_length = 50, primary_key = True, verbose_name = "Промокод")
