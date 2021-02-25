@@ -14,7 +14,8 @@ from .models import (
     YandexMapGeocoderKey,
     AuthToken,
     UsedPromocode,
-    Promocode
+    Promocode,
+    DeliveryData
 )
 import json
 from django.conf import settings
@@ -630,6 +631,18 @@ def getMapApiKey(request):
         "code": 0,
         "success": True,
         "key": keys[0].key
+    }
+
+    return JsonResponse(response, safe=False)
+
+@csrf_exempt
+def getDeliveryData(request):
+    data = DeliveryData.objects.all()
+
+    response = {
+        "code": 0,
+        "success": True,
+        "prices": data[0].prices
     }
 
     return JsonResponse(response, safe=False)

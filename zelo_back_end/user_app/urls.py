@@ -32,6 +32,7 @@ urlpatterns = [
     path('allOrders/<str:date>/', views.getTotalForDay),
     path('allOrders/<str:startDate>/<str:endDate>/', views.getTotalInRange),
 
+    path('deliveryData/', views.getDeliveryData),
     path('mapApiKey/', views.getMapApiKey),
     path('privacy_policy/', views.privacy_policy),
     path('support/', views.support),
