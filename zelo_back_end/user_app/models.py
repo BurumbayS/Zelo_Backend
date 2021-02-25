@@ -129,8 +129,8 @@ class Order(models.Model):
     contact_phone = models.CharField(max_length = 20, default = "", verbose_name = "Номер телефона")
     comment = models.CharField(max_length = 500, blank = True, default = "", verbose_name = "Комментарий")
     promoCode = models.CharField(max_length = 50, blank = True, null = True)
-    orderTotal = models.IntegerField(default = 0, verbose_name = "Общая сумма")
-    orderTotalWithSale = models.IntegerField(default = 0, verbose_name = "Сумма со скидкой")
+    total = models.IntegerField(default = 0, verbose_name = "Общая сумма")
+    total_with_promoCode = models.IntegerField(default = 0, verbose_name = "Сумма со скидкой")
     confirmed = models.BooleanField(default = False, verbose_name = "Подтвержден")
     canceled = models.BooleanField(default = False, verbose_name = "Отменен")
 
@@ -165,3 +165,6 @@ class PushToken(models.Model):
 
 class YandexMapGeocoderKey(models.Model):
     key = models.CharField(max_length = 1000)
+
+class DeliveryData(models.Model):
+    prices = models.JSONField()
