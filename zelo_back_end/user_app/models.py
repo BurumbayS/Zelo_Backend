@@ -128,6 +128,9 @@ class Order(models.Model):
     delivery_price = models.IntegerField(default = 0, verbose_name = "Сумма доставки")
     contact_phone = models.CharField(max_length = 20, default = "", verbose_name = "Номер телефона")
     comment = models.CharField(max_length = 500, blank = True, default = "", verbose_name = "Комментарий")
+    promoCode = models.CharField(max_length = 50, blank = True, null = True)
+    orderTotal = models.IntegerField(default = 0, verbose_name = "Общая сумма")
+    orderTotalWithSale = models.IntegerField(default = 0, verbose_name = "Сумма со скидкой")
     confirmed = models.BooleanField(default = False, verbose_name = "Подтвержден")
     canceled = models.BooleanField(default = False, verbose_name = "Отменен")
 
