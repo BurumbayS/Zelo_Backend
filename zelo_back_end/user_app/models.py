@@ -130,14 +130,14 @@ class Order(models.Model):
     comment = models.CharField(max_length = 500, blank = True, default = "", verbose_name = "Комментарий")
     promoCode = models.CharField(max_length = 50, blank = True, null = True)
     total = models.IntegerField(default = 0, verbose_name = "Общая сумма")
-    total_with_promoCode = models.IntegerField(default = 0, verbose_name = "Сумма со скидкой")
+    total_with_promoCode = models.IntegerField(default = 0, null = True, verbose_name = "Сумма со скидкой")
     confirmed = models.BooleanField(default = False, verbose_name = "Подтвержден")
     canceled = models.BooleanField(default = False, verbose_name = "Отменен")
 
     def save(self, *args, **kwargs):
         if (self.total_with_promoCode == None):
             self.total_with_promoCode = 0
-            
+
         if (self.date == None) & (self.time == None):
             self.date = datetime.date(localtime(now()))
             self.time = datetime.time(localtime(now()))
