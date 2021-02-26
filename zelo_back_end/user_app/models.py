@@ -135,6 +135,9 @@ class Order(models.Model):
     canceled = models.BooleanField(default = False, verbose_name = "Отменен")
 
     def save(self, *args, **kwargs):
+        if (self.total_with_promoCode == None):
+            self.total_with_promoCode = 0
+            
         if (self.date == None) & (self.time == None):
             self.date = datetime.date(localtime(now()))
             self.time = datetime.time(localtime(now()))
