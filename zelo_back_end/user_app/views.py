@@ -308,9 +308,12 @@ def getOrderPlace(order):
     serializer = PlaceSerializer(place)
     return serializer.data
 def getOrderPromoCode(order):
-    promocode = Promocode.objects.get(code = order['promoCode'])
-    serializer = PromocodeSerializer(promocode)
-    return serializer.data
+    try:
+        promocode = Promocode.objects.get(code = order['promoCode'])
+        serializer = PromocodeSerializer(promocode)
+        return serializer.data
+    except Exception as e:
+        print(e)
 
 
 @csrf_exempt
