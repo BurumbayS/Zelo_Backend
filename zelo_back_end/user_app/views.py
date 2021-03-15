@@ -245,6 +245,7 @@ def getPlaceOrders(request, placeID):
     for order in serializer.data:
         order['client'] = getOrderClient(order)
         order['place'] = getOrderPlace(order)
+        order['promoCode'] = getOrderPromoCode(order)
 
     return JsonResponse(serializer.data, safe=False)
 
@@ -278,6 +279,7 @@ def getUserOrders(request):
     serializer = OrderSerializer(orders, many = True)
     for order in serializer.data:
         order['place'] = getOrderPlace(order)
+        order['promoCode'] = getOrderPromoCode(order)
 
     return JsonResponse(serializer.data, safe=False)
 
@@ -293,6 +295,7 @@ def getAllOrders(request):
         for order in serializer.data:
             order['client'] = getOrderClient(order)
             order['place'] = getOrderPlace(order)
+            order['promoCode'] = getOrderPromoCode(order)
 
         return JsonResponse(serializer.data, safe=False)
 
@@ -303,6 +306,10 @@ def getOrderClient(order):
 def getOrderPlace(order):
     place = Place.objects.get(id = order['place_id'])
     serializer = PlaceSerializer(place)
+    return serializer.data
+def getOrderPromoCode(order):
+    promocode = Promocode.objects.get(code = order['promoCode'])
+    serializer = PromocodeSerializer(promocode)
     return serializer.data
 
 
