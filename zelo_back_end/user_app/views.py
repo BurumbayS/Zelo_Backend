@@ -568,7 +568,7 @@ def getPlaceTotal(request, placeID, date):
         "Their":
         {
             "total": selfOrdersTotal,
-            "count": count,
+            "count": selfOrdersCount,
         }
     }
     return JsonResponse(response, safe = False)
