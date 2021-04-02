@@ -104,6 +104,7 @@ class Place(models.Model):
     categories = models.JSONField(blank = True, null = True, verbose_name = "Категории")
     not_working = models.BooleanField(default = False, verbose_name = "Не работает")
     is_active = models.BooleanField(default = False, verbose_name = "Активно")
+    user_to_order = models.ForeignKey('User', on_delete = models.SET_NULL, null = True, verbose_name = "Аккаунта заведения для заказа")
 
 class MenuItem(models.Model):
     name = models.CharField(max_length = 50, blank = False, verbose_name = "Название")
