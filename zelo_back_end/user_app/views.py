@@ -575,18 +575,35 @@ def getPlaceTotal(request, placeID, date):
 
 def getPlaceTotalInRange(request, placeID, startDate, endDate):
     orders = Order.objects.filter(place_id = placeID, date__range=[startDate, endDate])
+    place = Place.objects.get(id = placeID)
 
     count = 0
     total = 0
+    selfOrdersTotal = 0
+    selfOrdersCount = 0
     for order in orders:
-        count += 1
-        print(order.date)
+        if (order.client_id == place.user_to_order):
+            selfOrdersCount += 1
+        else:
+            count += 1
+
         for item in order.order_items:
-            total += item['price'] * item['count']
+            if (order.client_id == place.user_to_order):
+                selfOrdersTotal += item['price'] * item['count']
+            else:
+                total += item['price'] * item['count']
 
     response = {
-        "total": total,
-        "count": count,
+        "Our":
+        {
+            "total": total,
+            "count": count,
+        },
+        "Their":
+        {
+            "total": selfOrdersTotal,
+            "count": selfOrdersCount,
+        }
     }
     return JsonResponse(response, safe = False)
 
