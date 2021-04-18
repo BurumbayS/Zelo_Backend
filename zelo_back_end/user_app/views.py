@@ -233,13 +233,25 @@ def cancelOrder(request, orderID):
     return JsonResponse(response, safe = False)
 
 @csrf_exempt
-def getPlaceOrders(request, placeID):
+def getPlaceTodayOrders(request, placeID):
     try:
         today = datetime.date(localtime(now()))
         placeOrders = Order.objects.filter(place_id = placeID, date = today, confirmed = True).order_by('-time')
     except Exception as error:
         print(error)
         return ErrorResponse.response(error)
+
+    serializer = OrderSerializer(placeOrders, many=True)
+    for order in serializer.data:
+        order['client'] = getOrderClient(order)
+        order['place'] = getOrderPlace(order)
+        order['promoCode'] = getOrderPromoCode(order)
+
+    return JsonResponse(serializer.data, safe=False)
+
+@csrf_exempt
+def getPlaceOrdersForDay(request, placeID, date):
+    placeOrders = Order.objects.filter(place_id = placeID, date = date, confirmed = False).order_by('-time')
 
     serializer = OrderSerializer(placeOrders, many=True)
     for order in serializer.data:
@@ -481,6 +493,39 @@ def removeMenuItemFromStopList(request, itemID):
     }
     return JsonResponse(response, safe = False)
 
+# ---Place Orders' Reports' methods ---------------------------------------#
+def getPlaceOrdersTotal(request, placeID, startDate, endDate):
+    orders = Order.objects.filter(place_id = placeID, date__range=[startDate, endDate])
+
+    ordersTotal = {}
+    ordersCount = {}
+
+    for order in orders:
+        ordersTotal[str(order.date)] = 0
+        ordersCount[str(order.date)] = 0
+
+    for order in orders:
+        dateString = str(order.date)
+        ordersCount[dateString] += 1
+
+        for item in order.order_items:
+            ordersTotal[dateString] += item['price'] * item['count']
+
+    totals = {}
+    for date in ordersTotal:
+        totals[date] = {
+            "date": date,
+            "total": ordersTotal[date],
+            "count": ordersCount[date]
+        }
+
+    response = {
+        "success": True,
+        "orders": totals
+    }
+
+    return JsonResponse(response, safe = False)
+
 # ------------------------------------------------------------------------ #
 @csrf_exempt
 @api_view(['POST'])
@@ -538,6 +583,8 @@ def privacy_policy(request):
 
 def support(request):
     return render(request, 'support.html')
+
+# ----------------------------------------------------------------------- #
 
 def getPlaceTotal(request, placeID, date):
     orders = Order.objects.filter(place_id = placeID, date = date)
