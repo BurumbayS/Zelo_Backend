@@ -511,13 +511,14 @@ def getPlaceOrdersTotal(request, placeID, startDate, endDate):
         for item in order.order_items:
             ordersTotal[dateString] += item['price'] * item['count']
 
-    totals = {}
+    totals = []
     for date in ordersTotal:
-        totals[date] = {
+        total = {
             "date": date,
             "total": ordersTotal[date],
             "count": ordersCount[date]
         }
+        totals.append(total)
 
     response = {
         "success": True,
