@@ -251,7 +251,7 @@ def getPlaceTodayOrders(request, placeID):
 
 @csrf_exempt
 def getPlaceOrdersForDay(request, placeID, date):
-    placeOrders = Order.objects.filter(place_id = placeID, date = date, confirmed = False).order_by('-time')
+    placeOrders = Order.objects.filter(place_id = placeID, date = date, confirmed = True).order_by('-time')
 
     serializer = OrderSerializer(placeOrders, many=True)
     for order in serializer.data:
