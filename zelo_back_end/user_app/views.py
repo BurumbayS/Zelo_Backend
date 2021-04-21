@@ -495,7 +495,7 @@ def removeMenuItemFromStopList(request, itemID):
 
 # ---Place Orders' Reports' methods ---------------------------------------#
 def getPlaceOrdersTotal(request, placeID, startDate, endDate):
-    orders = Order.objects.filter(place_id = placeID, date__range=[startDate, endDate])
+    orders = Order.objects.filter(place_id = placeID, confirmed = True, date__range=[startDate, endDate])
 
     ordersTotal = {}
     ordersCount = {}
