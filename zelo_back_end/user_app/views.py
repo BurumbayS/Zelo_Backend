@@ -588,7 +588,7 @@ def support(request):
 # ----------------------------------------------------------------------- #
 
 def getPlaceTotal(request, placeID, date):
-    orders = Order.objects.filter(place_id = placeID, date = date)
+    orders = Order.objects.filter(place_id = placeID, date = date, confirmed = True)
     place = Place.objects.get(id = placeID)
 
     count = 0
@@ -622,7 +622,7 @@ def getPlaceTotal(request, placeID, date):
     return JsonResponse(response, safe = False)
 
 def getPlaceTotalInRange(request, placeID, startDate, endDate):
-    orders = Order.objects.filter(place_id = placeID, date__range=[startDate, endDate])
+    orders = Order.objects.filter(place_id = placeID, date__range=[startDate, endDate], confirmed = True)
     place = Place.objects.get(id = placeID)
 
     count = 0
@@ -656,7 +656,7 @@ def getPlaceTotalInRange(request, placeID, startDate, endDate):
     return JsonResponse(response, safe = False)
 
 def getTotalInRange(request, startDate, endDate):
-    orders = Order.objects.filter(date__range=[startDate, endDate])
+    orders = Order.objects.filter(date__range=[startDate, endDate], confirmed = True)
 
     count = 0
     total = 0
@@ -673,7 +673,7 @@ def getTotalInRange(request, startDate, endDate):
     return JsonResponse(response, safe = False)
 
 def getTotalForDay(request, date):
-    orders = Order.objects.filter(date = date)
+    orders = Order.objects.filter(date = date, confirmed = True)
 
     count = 0
     total = 0
