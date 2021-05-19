@@ -170,5 +170,8 @@ class PushToken(models.Model):
 class YandexMapGeocoderKey(models.Model):
     key = models.CharField(max_length = 1000)
 
+class YandexMapSearchKey(models.Model):
+    key = models.CharField(max_length = 1000)
+
 class DeliveryData(models.Model):
     prices = models.JSONField()

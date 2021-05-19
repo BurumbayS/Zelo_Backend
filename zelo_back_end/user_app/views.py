@@ -12,6 +12,7 @@ from .models import (
     Order,
     PushToken,
     YandexMapGeocoderKey,
+    YandexMapSearchKey,
     AuthToken,
     UsedPromocode,
     Promocode,
@@ -718,6 +719,18 @@ def sendNotification(user_id, data):
 @csrf_exempt
 def getMapApiKey(request):
     keys = YandexMapGeocoderKey.objects.all()
+
+    response = {
+        "code": 0,
+        "success": True,
+        "key": keys[0].key
+    }
+
+    return JsonResponse(response, safe=False)
+
+@csrf_exempt
+def getAddressSearchApiKey(request):
+    keys = YandexMapSearchKey.objects.all()
 
     response = {
         "code": 0,

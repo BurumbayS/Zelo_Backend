@@ -37,6 +37,7 @@ urlpatterns = [
 
     path('deliveryData/', views.getDeliveryData),
     path('mapApiKey/', views.getMapApiKey),
+    path('addressSearchApiKey/', views.getAddressSearchApiKey),
     path('privacy_policy/', views.privacy_policy),
     path('support/', views.support),
     path('sockets/', views.sockets),
